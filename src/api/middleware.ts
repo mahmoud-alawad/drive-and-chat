@@ -51,7 +51,7 @@ export const authenticate =
       if (user === null) {
         return res
           .status(404)
-          .send(`User with id ${verifiedPayload.id} not found!`);
+          .send(`User with id not found!`);
       }
 
       // attach user to request object

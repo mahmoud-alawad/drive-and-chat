@@ -6,13 +6,14 @@ import { getJwtToken } from "../service/auth.service";
 import { registerUser } from "../service/user.service";
 import { prisma } from "../db/client";
 import io from "../socket";
+import catchAsync from "../utils/catchAsync";
 
 export const authRouter = Router();
 
 authRouter.post(
   "/login",
   validate(loginSchema),
-  async (req: Request, res: Response) => {
+  catchAsync(async (req: Request, res: Response) => {
     const payload = req.body as LoginSchema;
     const token = await getJwtToken(payload);
     const userWithMessages = await prisma.user.findUnique({
@@ -33,13 +34,13 @@ authRouter.post(
         messages: userWithMessages?.senderMessages,
       },
     });
-  }
+  })
 );
 
 authRouter.post(
   "/register",
   validate(userCreate),
-  async (req: Request, res: Response) => {
+  catchAsync(async (req: Request, res: Response) => {
     const payload = req.body as UserCreate;
     const user = await registerUser(payload);
     const token = await getJwtToken(payload);
@@ -47,11 +48,13 @@ authRouter.post(
     console.log(user);
 
     if (!user) {
-      return res.sendStatus(400);
+      return res
+        .sendStatus(404)
+        .send({ message: payload.username + ": already registered" });
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     io.emit("userRegistered", { userId: user.id });
     return res.status(201).send({ token, user });
-  }
+  })
 );

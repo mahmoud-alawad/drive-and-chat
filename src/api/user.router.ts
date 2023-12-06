@@ -6,7 +6,6 @@ import { User } from "@prisma/client";
 import { getById, getUserByEmail } from "../service/user.service";
 import { upload } from "../multer";
 
-
 export const userRouter = Router();
 
 // example update endpoint with payload validation and authentication
@@ -30,7 +29,9 @@ userRouter.get("/me", authenticate(), async (req: Request, res: Response) => {
   console.log(user);
 
   if (!user) {
-    return res.status(404).send();
+    return res.status(404).send({
+      message: req.params.id + " is not founded",
+    });
   }
   return res.status(200).send(user);
 });
@@ -70,8 +71,8 @@ userRouter.post(
   upload.single("image"),
   async (req: Request, res: Response) => {
     const reqUser = (req as AuthorizedRequest).user;
-    console.log(req.file );
-    
+    console.log(req.file);
+
     const { originalname, filename, path } = req.file as Express.Multer.File;
 
     try {

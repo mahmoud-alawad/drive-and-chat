@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { locale, t } = useI18n();
+const { error } = storeToRefs(useAuthStore());
+
 useHead({
   htmlAttrs: {
     lang: locale,
@@ -14,6 +16,21 @@ useHead({
 </script>
 <template>
   <NuxtLayout>
+    <NuxtLoadingIndicator color="FF4A01" />
+    <template v-if="error">
+      <md-modal
+        :show="!!error"
+        @close="
+          () => {
+            error = null;
+          }
+        "
+      >
+        <div v-if="error" class="p-3 lg:p-6">
+          {{ error.data?.message || error.data }}
+        </div>
+      </md-modal>
+    </template>
     <CookieBanner />
     <NuxtPage />
   </NuxtLayout>

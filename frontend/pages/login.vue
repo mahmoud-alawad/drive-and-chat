@@ -74,17 +74,12 @@ const password = ref<any>("");
 const message = ref<any>("");
 
 const authStore = useAuthStore();
-const { error, loading } = storeToRefs(authStore);
 const signIn = async () => {
   await authStore.login({
     email: email.value,
     password: password.value,
   });
-  console.log(error);
-  console.log(loading);
-  if (error.value) {
-    alert(error.value.data);
-  }
+
   navigateTo(useLocalePath()("dashboard"));
 };
 </script>

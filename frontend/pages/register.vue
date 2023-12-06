@@ -6,14 +6,8 @@ const userFields = reactive({
   password: "",
 });
 const authStore = useAuthStore();
-const { error, loading } = storeToRefs(authStore);
 const singUp = async () => {
   await authStore.register(userFields);
-  console.log(loading.value);
-
-  if (error.value) {
-    alert(error.value);
-  }
 };
 </script>
 

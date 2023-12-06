@@ -1,8 +1,11 @@
 <script setup lang="ts">
 const router = useRouter();
 const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
+const { user, error, loading } = storeToRefs(authStore);
 const localePath = useLocalePath();
+console.log("user_layout");
+console.log(user.value);
+const token = useCookie("token");
 
 const isMenuOpen = ref<boolean>(false);
 const sidebar = ref<HTMLElement>();
@@ -18,7 +21,25 @@ const logout = () => {
 useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
 </script>
 <template>
-  <div v-if="user" class="">
+  <div class="">
+    <template v-if="error">
+      <md-modal
+        :show="!!error"
+        @close="
+          () => {
+            error = null;
+            token = null;
+          }
+        "
+      >
+        <div v-if="error && error.data" class="p-3 lg:p-6">
+          {{ error.data || error.data?.message }}
+        </div>
+      </md-modal>
+    </template>
+    <div v-if="loading">
+      <loading-state />
+    </div>
     <button
       ref="sidebarTrigger"
       data-drawer-target="default-sidebar"

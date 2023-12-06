@@ -19,7 +19,6 @@ export const useAuthStore = defineStore("auth", () => {
   const loading = ref<boolean>();
   const error = ref<any>();
   const config = useRuntimeConfig();
-  console.log(config);
 
   const iUser = computed(() => {
     return user.value ? user.value : false;
@@ -117,6 +116,9 @@ export const useAuthStore = defineStore("auth", () => {
         Authorization: "Bearer " + useCookie("token").value,
       },
     });
+    console.log(fetchError);
+    console.log(data);
+
     error.value = fetchError.value;
     loading.value = pending.value;
     setUser(data.value);
