@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  socketId        String?   @unique
+  email           String    @unique
+  username        String    @unique
+  password        String
+  role            Role      @default(USER)
+  reciverMessages Message[] @relation("reciver")
+  senderMessages  Message[] @relation("user")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  images           Image[]
+}
+
+model Image {
+  id           Int      @id @unique @default(autoincrement())
+  originalName String   @unique
+  filename     String
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  path         String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  text       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  receiverId String?
+  senderId   String
+  sender     User     @relation("user", fields: [senderId], references: [id])
+  reciver    User?    @relation("reciver", fields: [receiverId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
