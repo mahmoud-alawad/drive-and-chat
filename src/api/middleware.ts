@@ -23,8 +23,6 @@ export const authenticate =
       // extract token from header
       const header = req.header("Authorization");
       console.log("authenticate headers middleware start");
-      console.log(req.file);
-      console.log(req.files);
 
       if (!header) {
         return res.status(401).send("No authorization header found"!);
@@ -45,7 +43,6 @@ export const authenticate =
         where: { id: verifiedPayload.id },
       });
 
-      console.log("user: " + user);
       console.log("user name : " + user?.username);
 
       if (user === null) {

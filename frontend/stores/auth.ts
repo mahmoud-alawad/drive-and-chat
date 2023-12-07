@@ -68,7 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = data?.value?.token; // set token to cookie
       authenticated.value = true; // set authenticated  state value to true
     }
-    return data;
+    return { data, error };
   };
 
   const logout = () => {

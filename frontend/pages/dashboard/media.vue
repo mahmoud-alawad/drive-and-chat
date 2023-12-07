@@ -1,10 +1,26 @@
 <!-- pages/index.vue -->
 <template>
   <div>
-    <div
-      v-if="user.images"
-      class="container grid grid-cols-2 gap-2 lg:grid-cols-3"
+    <md-modal
+      :show="!!message"
+      @close="
+        () => {
+          message = null;
+        }
+      "
     >
+      <div v-if="message" class="p-3 lg:p-6">
+        <div v-if="message.warning">{{ message.warning }}</div>
+        <div v-if="message.success">
+          image {{ message.success?.data?.name }} uploaded successfully !!
+        </div>
+        <div v-if="message.error">
+          <span>something went wrong try again!</span> <br />
+          {{ message.error }}
+        </div>
+      </div>
+    </md-modal>
+    <div v-if="user" class="container grid grid-cols-2 gap-2 lg:grid-cols-3">
       <div v-for="(image, index) in user.images" :key="index">
         <img
           :src="config.public.apiUrl + '/uploads/' + image.originalName"
@@ -30,8 +46,27 @@ const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 const imageInput = ref();
 const fileToUpload = ref();
+const message = ref();
 const config = useRuntimeConfig();
+const token = useCookie("token");
+
+const imageNormalizer = async (imagePath) => {
+  const baseUrl = config.public.apiUrl + "/api/upload?id=";
+  const { data, error } = await useFetch(baseUrl + imagePath, {
+    headers: {
+      Authorization: "Bearer " + token.value,
+    },
+    onResponse: (response) => {
+      console.log(response);
+    },
+  });
+  console.log(data.value);
+  console.log(error);
+
+  return data;
+};
 const userImages = user.value?.images.map((image) => {
+  imageNormalizer(image.id);
   return {
     id: image.id,
     originalName: image.originalName,
@@ -51,18 +86,20 @@ definePageMeta({
 if (!user.value) {
   authStore.authenticateUser();
 }
-// const { data, error } = await useFetch(config.public.apiUrl+"/uploads", {});
 
 const uploadImage = async () => {
   if (!fileToUpload.value) {
     console.error("No file selected");
+    message.value = {
+      warning: "no image selected",
+    };
     return;
   }
 
   const formData = new FormData();
   formData.append("image", fileToUpload.value);
 
-  const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
+  const { data, error } = await useFetch(config.public.apiUrl + "/api/upload", {
     method: "POST",
     headers: new Headers({
       Authorization: "Bearer " + useCookie("token").value,
@@ -76,8 +113,15 @@ const uploadImage = async () => {
     },
   });
   if (error.value) {
-    alert(error.value);
+    message.value = {
+      error,
+    };
   }
-  console.log("uploaded with success", data);
+  if (data.value) {
+    console.log("success");
+    message.value = {
+      success: data.value,
+    };
+  }
 };
 </script>

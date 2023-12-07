@@ -3,7 +3,7 @@ import { prisma } from "../db/client";
 
 /**
  * Query for images
- * @param {Object} filter - Mongo filter
+ * @param {Object} filter - filter
  * @param {Object} options - Query options
  * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
  * @param {number} [options.limit] - Maximum number of results per page (default = 10)
@@ -57,6 +57,9 @@ const create = async (
   if (await getImageByName(originalName)) {
     return null;
   }
+
+  console.log({ originalName, filename, path, userId });
+
   return prisma.image.create({
     data: {
       originalName,
@@ -85,7 +88,7 @@ const getImageByName = async <Key extends keyof Image>(
   ] as Key[]
 ): Promise<Pick<Image, Key> | null> => {
   return prisma.image.findUnique({
-    where: { originalName },
+    where: { originalName: originalName },
     select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
   }) as Promise<Pick<Image, Key> | null>;
 };

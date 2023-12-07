@@ -5,6 +5,7 @@ export interface CustomParamsDictionary {
   [key: string]: any;
 }
 
+
 const catchAsync =
   (
     fn: RequestHandler<

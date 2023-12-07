@@ -6,6 +6,7 @@ const userFields = reactive({
   password: "",
 });
 const authStore = useAuthStore();
+const { authenticated } = storeToRefs(authStore);
 const singUp = async () => {
   await authStore.register(userFields);
 };
@@ -13,7 +14,26 @@ const singUp = async () => {
 
 <template>
   <section class="container mx-auto mt-20">
-    <p v-if="message">{{ message }}</p>
+    <md-modal
+      :show="!!authenticated"
+      @close="
+        () => {
+          message = null;
+        }
+      "
+    >
+      <div v-if="authenticated" class="w-full p-3 lg:p-6">
+        <span class="inline-block w-full text-center"
+          >{{ userFields.username }} created</span
+        >
+        <span class="inline-block w-full text-center"> go to login page</span>
+        <nuxt-link
+          class="mx-auto mt-2 block w-8/12 rounded-md bg-primary px-3 py-1 text-center text-white lg:mt-4"
+          :to="useLocalePath()('login')"
+          >{{ $t("login") }}</nuxt-link
+        >
+      </div>
+    </md-modal>
     <div
       class="mx-auto w-full rounded-lg bg-white shadow sm:max-w-md md:mt-0 xl:p-0"
     >

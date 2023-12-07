@@ -11,9 +11,9 @@ import { mediaRouter } from "./api/media.router";
 app.use(cors({ origin: "*" }));
 // include the index router
 
-app.use(mediaRouter);
 
 app.use(json({ strict: false }));
+app.use(mediaRouter);
 
 app.use("/api", indexRouter);
 
