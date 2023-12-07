@@ -20,7 +20,7 @@ export default {
       },
       colors: {
         "nuxt-green": "#00DC82",
-        primary: "#00DC82",
+        primary: "#0d6efdfc",
         "nuxt-white": "#ffffff",
         "nuxt-grey": "#18181B",
       },

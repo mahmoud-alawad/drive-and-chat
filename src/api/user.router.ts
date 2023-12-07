@@ -2,9 +2,12 @@ import { Router, Request, Response } from "express";
 import { userUpdate } from "../schema/user.schema";
 import { authenticate, AuthorizedRequest, validate } from "./middleware";
 import { prisma } from "../db/client";
-import { User } from "@prisma/client";
+import { Image, User } from "@prisma/client";
 import { getById, getUserByEmail } from "../service/user.service";
 import { upload } from "../multer";
+import catchAsync from "../utils/catchAsync";
+import imageService from "../service/image.service";
+import path from "path";
 
 export const userRouter = Router();
 
@@ -57,7 +60,7 @@ userRouter.get(
             };
           }
           return null;
-        })
+        }).filter(e=> e)
       );
     }
 
@@ -98,3 +101,34 @@ userRouter.post(
     }
   }
 );
+
+console.log(path.resolve(process.cwd()+'uploads'+'ss'));
+
+
+userRouter.get(
+  "/images/:filename",
+  authenticate(),
+  catchAsync(async (req, res) => {
+    const reqUser = (req as AuthorizedRequest).user;
+    // const filter = pick(req.params, ["filename"]);
+    // const options = pick(req.query, ["sortBy", "limit", "sortType", "skip"]);
+    console.log('id image start');
+    console.log(req.params);
+    const user = await getById(reqUser.id);
+
+    const imagesExist = await imageService.query({filename: req.params.filename }) as Image[];
+    console.log("we got image with id");
+
+    console.log(imagesExist);
+
+    if (!imagesExist) {
+      return res.status(403).send({
+        message: `The file ${req.params.id} already exists`,
+      });
+    }
+    return  imagesExist.map((image)=> {
+      const filepath = path.resolve(process.cwd()+'/uploads/'+image.filename);
+      return  res.sendFile(filepath);
+    });
+  })
+)

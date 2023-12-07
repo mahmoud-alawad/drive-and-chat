@@ -3,12 +3,10 @@ import path from "path";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log(file);
     cb(null, path.resolve(__dirname, "..", "uploads"));
   },
   
   filename: function (req, file, cb) {
-    console.log(file);
     const fileName = `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`;
     cb(null, fileName);
     // const fileFormat =(file.originalname).split("."); 

@@ -3,7 +3,6 @@ import { AuthorizedRequest, authenticate } from "./middleware";
 import { upload } from "../multer";
 import imageService from "../service/image.service";
 import catchAsync from "../utils/catchAsync";
-import pick from "../utils/pick";
 
 export const mediaRouter = Router();
 
@@ -21,30 +20,33 @@ mediaRouter.post(
         message: `The file ${filename} already exists`,
       });
     }
-    return await imageService.create({
+    const imageCreated = await imageService.create({
       originalName: originalname,
       filename: filename,
       path: path,
       userId: reqUser.id,
     });
+    console.log(imageCreated);
+    
+    return imageCreated; 
   })
 );
 
 mediaRouter.get(
-  "/upload/:id",
+  "/upload/all",
   authenticate(),
   catchAsync(async (req, res) => {
-    // const reqUser = (req as AuthorizedRequest).user;
+    const reqUser = (req as AuthorizedRequest).user;
     // const filter = pick(req.params, ["filename"]);
     // const options = pick(req.query, ["sortBy", "limit", "sortType", "skip"]);
     console.log('id image start');
     
-    const imageExist = await imageService.get(req.params.id);
+    const imagesExist = await imageService.query({userId: reqUser.id });
     console.log("we got image with id");
 
-    console.log(imageExist);
+    console.log(imagesExist);
 
-    if (imageExist) {
+    if (imagesExist) {
       return res.status(403).send({
         message: `The file ${req.params.id} already exists`,
       });

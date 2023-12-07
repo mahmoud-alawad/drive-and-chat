@@ -12,13 +12,6 @@ import { prisma } from "../db/client";
  */
 const query = async <Key extends keyof Image>(
   filter: object,
-  options: {
-    limit?: number;
-    page?: number;
-    sortBy?: string;
-    skip?: number;
-    sortType?: "asc" | "desc";
-  },
   keys: Key[] = [
     "id",
     "originalName",
@@ -26,13 +19,20 @@ const query = async <Key extends keyof Image>(
     "path",
     "createdAt",
     "updatedAt",
-  ] as Key[]
+  ] as Key[],
+  options?: {
+    limit?: number;
+    page?: number;
+    sortBy?: string;
+    skip?: number;
+    sortType?: "asc" | "desc";
+  }
 ): Promise<Pick<Image, Key>[]> => {
-  const page = options.page ?? 1;
-  const skip = options.skip ?? 0;
-  const limit = options.limit ?? 10;
-  const sortBy = options.sortBy;
-  const sortType = options.sortType ?? "desc";
+  const page = options?.page ?? 1;
+  const skip = options?.skip ?? 0;
+  const limit = options?.limit ?? 10;
+  const sortBy = options?.sortBy;
+  const sortType = options?.sortType ?? "desc";
 
   const images = await prisma.image.findMany({
     where: filter,
@@ -58,7 +58,7 @@ const create = async (
     return null;
   }
 
-  console.log({ originalName, filename, path, userId });
+  console.log(obj);
 
   return prisma.image.create({
     data: {
