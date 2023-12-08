@@ -18,24 +18,26 @@ const blobUrl = ref();
 const token = useCookie("token");
 
 async function load(src) {
-  const response = await useFetch(src, {
+  const { data, error } = await useFetch(src, {
     method: "get",
     headers: {
       Authorization: "Bearer " + token.value,
     },
-    responseType: "blob",
   });
-  return response.data; // the blob
+
+  if (error.value) {
+    return;
+  }
+
+  return data.value; // the blob
 }
 
 watch(
   () => props.src,
   () => {
     if (!src) return;
-    load(src).then((blob) => {
-      blobUrl.value = URL.createObjectURL(blob);
-      console.log(blobUrl.value);
-    });
+    console.log(src);
+    blobUrl.value = URL.createObjectURL(load(src));
   }
 );
 

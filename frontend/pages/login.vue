@@ -54,12 +54,11 @@
           >
             Sign in
           </button>
-          <br />
-          <span>OR</span>
+          <div class="w-full py-1">OR</div>
           <nuxt-link
             :to="useLocalePath()('register')"
             type="submit"
-            class="hover:bg-primary-700 focus:ring-primary-300 w-full rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+            class="hover:bg-primary-700 focus:ring-primary-300 block w-full rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
           >
             Sign Up
           </nuxt-link>

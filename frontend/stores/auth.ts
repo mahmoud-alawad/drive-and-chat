@@ -1,5 +1,5 @@
 // stores/counter.js
-import { defineStore } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 
 export type UserType = {
   id: string;
@@ -13,10 +13,11 @@ export type UserType = {
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<UserType>();
+  const userImages = ref<any>([]);
   const users = ref<UserType[]>();
   const authenticated = ref<boolean>();
   const token = ref<string>();
-  const loading = ref<boolean>();
+  const loading = ref<boolean>(false);
   const error = ref<any>();
   const config = useRuntimeConfig();
 
@@ -26,6 +27,21 @@ export const useAuthStore = defineStore("auth", () => {
 
   const setUser = (userData: UserType) => {
     user.value = userData;
+  };
+
+  const normalizeResponse = ({ data, pending, fetchError }) => {
+    if (data.value) {
+      loading.value = false;
+      error.value = null;
+    }
+    if (pending.value) {
+      loading.value = true;
+    } else {
+      loading.value = false;
+    }
+    if (fetchError.value) {
+      error.value = fetchError.value;
+    }
   };
 
   const login = async (payload: Omit<UserType, "id" | "username">) => {
@@ -40,8 +56,8 @@ export const useAuthStore = defineStore("auth", () => {
         password: payload.password,
       },
     });
-    error.value = fetchError.value;
-    loading.value = pending;
+    normalizeResponse({ data, pending, fetchError });
+
     if (data.value) {
       const _tokenCookie = useCookie("token"); // useCookie new hook in nuxt 3
       const _userIdCookie = useCookie("userId"); // useCookie new hook in nuxt 3
@@ -61,8 +77,8 @@ export const useAuthStore = defineStore("auth", () => {
       method: "POST",
       body: payload,
     });
-    error.value = fetchError.value;
-    loading.value = pending;
+    normalizeResponse({ data, pending, fetchError });
+
     if (data.value) {
       const token = useCookie("token"); // useCookie new hook in nuxt 3
       token.value = data?.value?.token; // set token to cookie
@@ -77,6 +93,47 @@ export const useAuthStore = defineStore("auth", () => {
     token.value = null; // clear the token cookie
   };
 
+  const updateUser = async (payload: Omit<UserType, "id" | "password">) => {
+    const {
+      data,
+      pending,
+      error: fetchError,
+    }: any = await useFetch(config.public.apiUrl + "/api/user", {
+      headers: {
+        Authorization: `Bearer ${useCookie("token").value}`,
+      },
+      method: "PUT",
+      body: payload,
+    });
+    normalizeResponse({ data, pending, fetchError });
+
+    if (data.value) {
+      setUser(data.value as UserType);
+    }
+    return { data, error, pending };
+  };
+
+  const deleteAccount = async () => {
+    const {
+      data,
+      pending,
+      error: fetchError,
+    }: any = await useFetch(config.public.apiUrl + "/api/user", {
+      headers: {
+        Authorization: `Bearer ${useCookie("token").value}`,
+      },
+      method: "DELETE",
+    });
+    normalizeResponse({ data, pending, fetchError });
+
+    if (data.value) {
+      user.value = null;
+      const tok = useCookie("token");
+      tok.value = null;
+    }
+    return { data, error, pending };
+  };
+
   const getUsers = async () => {
     const {
       data,
@@ -88,8 +145,8 @@ export const useAuthStore = defineStore("auth", () => {
       },
     });
 
-    error.value = fetchError.value;
-    loading.value = pending.value;
+    normalizeResponse({ data, pending, fetchError });
+
     if (data && data.value) {
       users.value = data.value as UserType[];
       return data.value;
@@ -105,41 +162,90 @@ export const useAuthStore = defineStore("auth", () => {
       return users.value.find((user: UserType) => user.id === userId);
     }
   };
+
   const authenticateUser = async () => {
     const {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(config.public.apiUrl + "/api/user/me", {
+      refresh,
+    } = await useFetch(config.public.apiUrl + "/api/user/me", {
       method: "get",
       headers: {
         Authorization: "Bearer " + useCookie("token").value,
       },
     });
-    console.log(fetchError);
-    console.log(data);
 
-    error.value = fetchError.value;
-    loading.value = pending.value;
-    setUser(data.value);
+    normalizeResponse({ data, pending, fetchError });
 
-    return data;
+    setUser(data.value as UserType);
+    return { data, fetchError, refresh };
+  };
+
+  const nomalizeImage = async (filename?: string) => {
+    const baseUrl = (config.public.apiUrl +
+      `/api/user/images/${filename}`) as string;
+    const {
+      data,
+      pending,
+      error: fetchError,
+    }: any = await useFetch(baseUrl, {
+      query: {
+        filename,
+      },
+      headers: {
+        Authorization: "Bearer " + useCookie("token").value,
+      },
+    });
+    console.log(pending);
+
+    normalizeResponse({ data, pending, fetchError });
+    if (data.value) {
+      return { url: URL.createObjectURL(data.value) };
+    }
+
+    return {
+      pending,
+      error,
+    };
+  };
+
+  const normalizeImages = async () => {
+    userImages.value = [];
+    const { data: userData, refresh } = await authenticateUser();
+    const realWithType = userData.value as UserType;
+    if (realWithType) {
+      realWithType?.images?.forEach(async (image: any) => {
+        const { url }: any = await nomalizeImage(image.filename);
+        userImages.value.push({ url });
+      });
+    } else {
+      refresh();
+    }
   };
 
   return {
     user,
+    userImages,
     users,
     token,
     iUser,
     error,
     loading,
     authenticated,
+    deleteAccount,
     login,
     register,
     logout,
     authenticateUser,
+    updateUser,
     setUser,
     getUsers,
     getUserById,
+    nomalizeImage,
+    normalizeImages,
   };
 });
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));

@@ -7,8 +7,6 @@ export const useClickOutSide: UseOutSideInterface = (
   callBack,
   trigger
 ) => {
-  console.log(components);
-
   const listner = (event: Event) => {
     event.stopPropagation();
 

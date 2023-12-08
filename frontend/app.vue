@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { locale, t } = useI18n();
-const { error } = storeToRefs(useAuthStore());
+const { error, loading } = storeToRefs(useAuthStore());
 
 useHead({
   htmlAttrs: {
@@ -17,6 +17,7 @@ useHead({
 <template>
   <NuxtLayout>
     <NuxtLoadingIndicator color="FF4A01" />
+    <div v-if="loading" class="animate-bounce">Loading........</div>
     <template v-if="error">
       <md-modal
         :show="!!error"

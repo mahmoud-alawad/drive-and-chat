@@ -3,8 +3,6 @@ const router = useRouter();
 const authStore = useAuthStore();
 const { user, error, loading } = storeToRefs(authStore);
 const localePath = useLocalePath();
-console.log("user_layout");
-console.log(user.value);
 const token = useCookie("token");
 
 const isMenuOpen = ref<boolean>(false);
@@ -74,15 +72,22 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
       aria-label="Sidebar"
     >
       <div class="h-full overflow-y-auto bg-gray-50 px-3 py-4 dark:bg-gray-800">
+        <div
+          class="absolute right-2 top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-white"
+          @click="isMenuOpen = false"
+        >
+          x
+        </div>
         <ul class="space-y-2 font-medium">
           <li>
-            <div
+            <nuxt-link
               class="relative mb-4 mt-2 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600"
+              :to="localePath('/dashboard/profile')"
             >
               <span class="font-medium text-gray-600 dark:text-gray-300">
                 {{ user?.username.slice(0, 2) }}</span
               >
-            </div>
+            </nuxt-link>
           </li>
           <li>
             <nuxt-link

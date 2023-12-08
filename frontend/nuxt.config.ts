@@ -32,6 +32,9 @@ export default defineNuxtConfig({
     exposeConfig: false,
     viewer: true,
   },
+  experimental: {
+    renderJsonPayloads: false,
+  },
   postcss: {
     plugins: {
       "postcss-import": {},

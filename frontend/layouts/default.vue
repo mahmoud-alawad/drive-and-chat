@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const localePath = useLocalePath();
+const router = useRouter();
+const back = () => {
+  router.back();
+};
 
 useLocaleHead({
   addDirAttribute: true,
@@ -43,12 +47,18 @@ useLocaleHead({
           <LanguageSelector />
         </div>
       </nav>
+      <div class="flex w-full items-start">
+        <button
+          class="w-[3rem] rounded-md bg-slate-700 p-1 text-center text-white hover:bg-slate-600 focus:ring-4"
+          @click.prevent="back"
+        >
+          {{ $t("back") }}
+        </button>
+      </div>
     </header>
     <slot />
 
-    <footer
-      class="dark:text-300 py-20 text-center text-sm text-gray-500 dark:bg-slate-900"
-    >
+    <footer class="dark:text-300 py-20 text-center text-sm text-gray-500">
       <p>© {{ new Date().getFullYear() }} - {{ $t("site.name") }}</p>
     </footer>
   </div>
