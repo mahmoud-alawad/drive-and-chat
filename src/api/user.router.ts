@@ -3,7 +3,12 @@ import { userUpdate } from "../schema/user.schema";
 import { authenticate, AuthorizedRequest, validate } from "./middleware";
 import { prisma } from "../db/client";
 import { Image, User } from "@prisma/client";
-import { getById, getUserByEmail } from "../service/user.service";
+import {
+  getById,
+  getUserByEmail,
+  trash,
+  update,
+} from "../service/user.service";
 import { upload } from "../multer";
 import catchAsync from "../utils/catchAsync";
 import imageService from "../service/image.service";
@@ -18,12 +23,22 @@ userRouter.put(
   validate(userUpdate), // validate request body
   async (req: Request, res: Response) => {
     const user = (req as AuthorizedRequest).user;
-    const result = await prisma.user.update({
-      where: { id: user.id },
-      data: req.body,
-    });
+    const result = await update(user.id, req.body);
     return res.status(200).send(result);
   }
+);
+
+userRouter.delete(
+  "/",
+  authenticate(),
+  catchAsync(async (req: Request, res: Response) => {
+    const user = (req as AuthorizedRequest).user;
+    const result = await trash(user.id);
+    if (!result) {
+      res.status(404).send({ message: "not founded" });
+    }
+    res.status(200).send(result);
+  })
 );
 
 userRouter.get("/me", authenticate(), async (req: Request, res: Response) => {
@@ -50,17 +65,19 @@ userRouter.get(
 
     if (result.length) {
       return res.status(200).send(
-        result.map((singleUser: User) => {
-          const { username, email, id } = singleUser;
-          if (singleUser.id !== requestUser?.id) {
-            return {
-              id,
-              email,
-              username,
-            };
-          }
-          return null;
-        }).filter(e=> e)
+        result
+          .map((singleUser: User) => {
+            const { username, email, id } = singleUser;
+            if (singleUser.id !== requestUser?.id) {
+              return {
+                id,
+                email,
+                username,
+              };
+            }
+            return null;
+          })
+          .filter((e) => e)
       );
     }
 
@@ -102,8 +119,7 @@ userRouter.post(
   }
 );
 
-console.log(path.resolve(process.cwd()+'uploads'+'ss'));
-
+console.log(path.resolve(process.cwd() + "uploads" + "ss"));
 
 userRouter.get(
   "/images/:filename",
@@ -112,11 +128,13 @@ userRouter.get(
     const reqUser = (req as AuthorizedRequest).user;
     // const filter = pick(req.params, ["filename"]);
     // const options = pick(req.query, ["sortBy", "limit", "sortType", "skip"]);
-    console.log('id image start');
+    console.log("id image start");
     console.log(req.params);
     const user = await getById(reqUser.id);
 
-    const imagesExist = await imageService.query({filename: req.params.filename }) as Image[];
+    const imagesExist = (await imageService.query({
+      filename: req.params.filename,
+    })) as Image[];
     console.log("we got image with id");
 
     console.log(imagesExist);
@@ -126,9 +144,11 @@ userRouter.get(
         message: `The file ${req.params.id} already exists`,
       });
     }
-    return  imagesExist.map((image)=> {
-      const filepath = path.resolve(process.cwd()+'/uploads/'+image.filename);
-      return  res.sendFile(filepath);
+    return imagesExist.map((image) => {
+      const filepath = path.resolve(
+        process.cwd() + "/uploads/" + image.filename
+      );
+      return res.sendFile(filepath);
     });
   })
-)
+);

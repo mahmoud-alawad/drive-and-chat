@@ -1,7 +1,7 @@
 import { prisma } from "../db/client";
 import bcrypt from "bcrypt";
 import { UserCreate, UserReturn } from "../schema/user.schema";
-import type { User } from "@prisma/client";
+import type { Prisma, User } from "@prisma/client";
 
 export async function registerUser(
   payload: UserCreate
@@ -68,4 +68,32 @@ export const getById = async <Key extends keyof User>(
   });
 
   return result as Pick<User, Key> | null;
+};
+/**
+ * Update user by id
+ * @param {ObjectId} userId
+ * @param {Object} updateBody
+ * @returns {Promise<User>}
+ */
+export const update = async <Key extends keyof User>(
+  userId: string,
+  updateBody: Prisma.UserUpdateInput,
+  keys: Key[] = ["id", "email", "username"] as Key[]
+): Promise<Pick<User, Key> | null> => {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: updateBody,
+    select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
+  });
+  return updatedUser as Pick<User, Key> | null;
+};
+
+
+/**
+ * Delete user by id
+ * @param {ObjectId} userId
+ * @returns {Promise<User | null>  }
+ */
+export const trash = async (userId: string): Promise<User | null> => {
+  return await prisma.user.delete({ where: { id: userId } });
 };

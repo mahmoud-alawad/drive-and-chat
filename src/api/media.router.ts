@@ -27,8 +27,8 @@ mediaRouter.post(
       userId: reqUser.id,
     });
     console.log(imageCreated);
-    
-    return imageCreated; 
+
+    return res.status(200).send(imageCreated);
   })
 );
 
@@ -39,9 +39,9 @@ mediaRouter.get(
     const reqUser = (req as AuthorizedRequest).user;
     // const filter = pick(req.params, ["filename"]);
     // const options = pick(req.query, ["sortBy", "limit", "sortType", "skip"]);
-    console.log('id image start');
-    
-    const imagesExist = await imageService.query({userId: reqUser.id });
+    console.log("id image start");
+
+    const imagesExist = await imageService.query({ userId: reqUser.id });
     console.log("we got image with id");
 
     console.log(imagesExist);
