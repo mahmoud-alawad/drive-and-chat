@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "config";
 import { prisma } from "../db/client";
-import { jwtPayloadSchema } from "../schema/auth.schema";
+import { JwtPayloadSchema, jwtPayloadSchema } from "../schema/auth.schema";
 import { User } from "@prisma/client";
 
 export const validate =
@@ -33,22 +33,18 @@ export const authenticate =
       }
       console.log("token: " + token);
 
-      // verify and decode jwt token
-      const jwtPayload = jwt.verify(token, config.get("auth.jwtSecret"));
-      const verifiedPayload = await jwtPayloadSchema.parseAsync(jwtPayload);
+      const verifiedPayload = await verifyToken(token);
       console.log("verifiedPayload: " + verifiedPayload);
 
       // get user from db
       const user = await prisma.user.findUnique({
-        where: { id: verifiedPayload.id },
+        where: { id: verifiedPayload?.id },
       });
 
       console.log("user name : " + user?.username);
 
       if (user === null) {
-        return res
-          .status(404)
-          .send(`User with id not found!`);
+        return res.status(404).send(`User with id not found!`);
       }
 
       // attach user to request object
@@ -62,3 +58,20 @@ export const authenticate =
 
 // augment the req object with the request's sender as User
 export type AuthorizedRequest = Request & { user: User };
+
+export const verifyToken = async (
+  payload: string
+): Promise<JwtPayloadSchema | null> => {
+  const token = payload.replace("Bearer ", "");
+  if (!token) {
+    return null;
+  }
+
+  const jwtPayload = jwt.verify(token, config.get("auth.jwtSecret"));
+  const verifiedPayload = await jwtPayloadSchema.parseAsync(jwtPayload);
+  if (!verifiedPayload) {
+    return null;
+  }
+
+  return verifiedPayload;
+};

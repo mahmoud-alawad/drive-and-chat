@@ -41,7 +41,10 @@
       "name": "login"
     },
     "dashboard": {
-      "name": "dashboard"
+      "name": "dashboard",
+      "media": {
+        "noImages": "you don't have images"
+      }
     },
     "index": {
       "meta": {

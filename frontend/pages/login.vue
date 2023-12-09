@@ -73,6 +73,10 @@ const password = ref<any>("");
 const message = ref<any>("");
 
 const authStore = useAuthStore();
+const { authenticated } = storeToRefs(authStore);
+if (authenticated.value) {
+  navigateTo(useLocalePath()("/dashboard/chat"));
+}
 const signIn = async () => {
   await authStore.login({
     email: email.value,

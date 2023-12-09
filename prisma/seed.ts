@@ -12,6 +12,16 @@ const users = [
     email: "test@gmail.com",
     password: "password",
   },
+  {
+    username: "mahmoud alawad",
+    email: "awad25.ma@gmail.com",
+    password: "password",
+  },
+  {
+    username: "fatima",
+    email: "fatima@gmail.com",
+    password: "password",
+  },
 ];
 const prisma = new PrismaClient();
 

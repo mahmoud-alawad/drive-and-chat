@@ -10,7 +10,6 @@ export async function registerUser(
   const user = await prisma.user.findMany({
     where: { OR: [{ username: payload.username }, { email: payload.email }] },
   });
-  console.log(user);
 
   // check that user does not exist yet
   if (user.length) {
@@ -87,7 +86,6 @@ export const update = async <Key extends keyof User>(
   });
   return updatedUser as Pick<User, Key> | null;
 };
-
 
 /**
  * Delete user by id

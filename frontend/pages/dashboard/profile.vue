@@ -34,8 +34,8 @@ const deleteAccount = async () => {
 };
 </script>
 <template>
-  <div class="flex h-fit w-full items-center justify-center">
-    <div class="w-10/12">
+  <div class="mt-16 flex h-fit w-full items-center justify-center">
+    <div class="w-10/12 max-w-xl">
       <div class="rounded-lg bg-white py-3 shadow-xl">
         <div class="photo-wrapper mx-auto aspect-square w-1/2 p-2">
           <img

@@ -58,7 +58,6 @@ const create = async (
     return null;
   }
 
-  console.log(obj);
 
   return prisma.image.create({
     data: {

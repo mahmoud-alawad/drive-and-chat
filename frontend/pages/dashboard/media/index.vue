@@ -1,11 +1,5 @@
 <template>
   <div class="relative h-screen w-full">
-    <a
-      class="block cursor-pointer rounded-md bg-primary py-2 text-center text-lg font-bold text-white ring-nuxt-green"
-      @click.prevent="navigateTo(useLocalePath()('/dashboard/media/upload'))"
-    >
-      upload media
-    </a>
     <md-modal
       :show="!!message"
       @close="
@@ -27,14 +21,20 @@
       </div>
     </md-modal>
     <div
-      v-if="userImages"
+      v-if="userImages.length"
       class="container grid grid-cols-2 gap-2 lg:grid-cols-3"
     >
       <div v-for="(image, index) in userImages" :key="index">
         <img class="min-h-[3rem] w-full" :src="image.url" />
       </div>
     </div>
-    <div v-else>you don't have images</div>
+    <div v-else class="flex h-screen w-full items-center justify-center">
+      <div
+        class="flex min-h-[20vh] animate-bounce items-center justify-center rounded-md p-4 text-red-600 shadow-md"
+      >
+        {{ $t("pages.dashboard.media.noImages") }}
+      </div>
+    </div>
   </div>
 </template>
 

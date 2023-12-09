@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(cuid())
+  id              String    @id @unique @default(cuid())
   socketId        String?   @unique
   email           String    @unique
   username        String    @unique
@@ -21,7 +21,7 @@ model User {
   senderMessages  Message[] @relation("user")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  images           Image[]
+  images          Image[]
 }
 
 model Image {

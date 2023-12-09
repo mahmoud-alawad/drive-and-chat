@@ -44,7 +44,6 @@ userRouter.delete(
 userRouter.get("/me", authenticate(), async (req: Request, res: Response) => {
   const reqUser = (req as AuthorizedRequest).user;
   const user = await getById(reqUser.id);
-  console.log(user);
 
   if (!user) {
     return res.status(404).send({
@@ -61,7 +60,6 @@ userRouter.get(
     const user = (req as AuthorizedRequest).user;
     const result = await prisma.user.findMany();
     const requestUser = await getUserByEmail(user.email);
-    console.log(result);
 
     if (result.length) {
       return res.status(200).send(
@@ -91,7 +89,6 @@ userRouter.post(
   upload.single("image"),
   async (req: Request, res: Response) => {
     const reqUser = (req as AuthorizedRequest).user;
-    console.log(req.file);
 
     const { originalname, filename, path } = req.file as Express.Multer.File;
 
@@ -119,7 +116,6 @@ userRouter.post(
   }
 );
 
-console.log(path.resolve(process.cwd() + "uploads" + "ss"));
 
 userRouter.get(
   "/images/:filename",
@@ -129,7 +125,6 @@ userRouter.get(
     // const filter = pick(req.params, ["filename"]);
     // const options = pick(req.query, ["sortBy", "limit", "sortType", "skip"]);
     console.log("id image start");
-    console.log(req.params);
     const user = await getById(reqUser.id);
 
     const imagesExist = (await imageService.query({

@@ -29,7 +29,7 @@ export const useAuthStore = defineStore("auth", () => {
     user.value = userData;
   };
 
-  const normalizeResponse = ({ data, pending, fetchError }) => {
+  const normalizeResponse = ({ data, pending, fetchError }: any) => {
     if (data.value) {
       loading.value = false;
       error.value = null;
@@ -127,7 +127,7 @@ export const useAuthStore = defineStore("auth", () => {
     normalizeResponse({ data, pending, fetchError });
 
     if (data.value) {
-      user.value = null;
+      user.value = undefined;
       const tok = useCookie("token");
       tok.value = null;
     }
