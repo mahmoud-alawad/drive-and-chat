@@ -25,13 +25,25 @@ mediaRouter.post(
       filename: filename,
       path: path,
       userId: reqUser.id,
+      sharedUserId: reqUser.id,
     });
     console.log(imageCreated);
 
     return res.status(200).send(imageCreated);
   })
 );
-
+mediaRouter.put(
+  "/upload",
+  authenticate(),
+  catchAsync(async (req, res) => {
+    const imageCreated = await imageService.update(req.body.id, req.body);
+    console.log(imageCreated);
+    if (!imageCreated) {
+      res.status(403).send({ data: "something went wrong" });
+    }
+    return res.status(200).send(imageCreated);
+  })
+);
 mediaRouter.get(
   "/upload/all",
   authenticate(),

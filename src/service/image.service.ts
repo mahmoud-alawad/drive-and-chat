@@ -53,11 +53,11 @@ const query = async <Key extends keyof Image>(
 const create = async (
   obj: Prisma.ImageUncheckedCreateInput
 ): Promise<Image | null> => {
-  const { originalName, filename, path, userId } = obj;
+  const { originalName, filename, path, sharedUserId, userId } = obj;
   if (await getImageByName(originalName)) {
     return null;
   }
-
+  const userSharedId = sharedUserId ? sharedUserId : userId;
 
   return prisma.image.create({
     data: {
@@ -65,6 +65,7 @@ const create = async (
       filename,
       path,
       userId,
+      sharedUserId: userSharedId,
     },
   });
 };
@@ -123,7 +124,7 @@ const get = async <Key extends keyof Image>(
  */
 const update = async <Key extends keyof Image>(
   imageId: number,
-  updateBody: Prisma.ImageUpdateInput,
+  updateBody: Prisma.ImageUncheckedUpdateInput,
   keys: Key[] = ["id", "originalName", "filename"] as Key[]
 ): Promise<Pick<Image, Key> | null> => {
   const image = await get(imageId, ["id", "originalName", "filename"]);

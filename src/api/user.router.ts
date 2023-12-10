@@ -66,14 +66,11 @@ userRouter.get(
         result
           .map((singleUser: User) => {
             const { username, email, id } = singleUser;
-            if (singleUser.id !== requestUser?.id) {
-              return {
-                id,
-                email,
-                username,
-              };
-            }
-            return null;
+            return {
+              id,
+              email,
+              username,
+            };
           })
           .filter((e) => e)
       );
@@ -105,6 +102,7 @@ userRouter.post(
           filename: filename,
           path: path,
           userId: reqUser.id,
+          sharedUserId: reqUser.id,
         },
       });
 
@@ -115,7 +113,6 @@ userRouter.post(
     }
   }
 );
-
 
 userRouter.get(
   "/images/:filename",

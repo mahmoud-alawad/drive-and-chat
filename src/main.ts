@@ -75,14 +75,14 @@ io.use(async (socket, next) => {
   }
   next();
 });
+
 io.on("error", (err) => {
   console.log("socket error");
   console.log(err);
 });
+
 io.on("connection", async (socket) => {
   socket.on("login", async (payload) => {
-    console.log("on login socket", payload);
-
     socketUsers[payload.userId] = socket.id;
     console.log(`User ${payload.userId} connected`);
     const userMessages = await prisma.message.findMany({
@@ -103,13 +103,11 @@ io.on("connection", async (socket) => {
         sender: true,
       },
     });
-    console.log(userMessages);
-
+    socket.emit("updateOnlineUsers", Object.keys(socketUsers));
     socket.emit("chatHistory", [...userMessages, ...reciverMessages]);
   });
 
   socket.on("message", async (data) => {
-    console.log(data);
     const { senderId, receiverId, text } = data;
     const message = await prisma.message.create({
       data: {
@@ -122,7 +120,6 @@ io.on("connection", async (socket) => {
         reciver: true,
       },
     });
-    console.log(message);
 
     // io.to(socket.id).emit("chat message", message);
     // if (io.sockets.sockets[receiverId]) {
@@ -130,9 +127,6 @@ io.on("connection", async (socket) => {
     // }
     console.log("sender id", senderId);
     console.log("reciver id", receiverId);
-
-    console.log(socketUsers);
-    console.log(socketUsers[receiverId]);
 
     // io.to(socketUsers[senderId]).emit("newMessage", message);
     io.to(socketUsers[receiverId]).emit("newMessage", message);
@@ -150,8 +144,17 @@ io.on("connection", async (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
+    const disconnectedUserId = Object.keys(socketUsers).find(
+      (key) => socketUsers[key] === socket.id
+    );
+    if (disconnectedUserId) {
+      delete socketUsers[disconnectedUserId];
+      socket.emit("updateOnlineUsers", Object.keys(socketUsers));
+    }
   });
 });
+
+io.emit("updateOnlineUsers", Object.keys(socketUsers));
 
 httpServer.listen(port, function () {
   console.log(config.get("meta.title") + "Running on : ", port);
