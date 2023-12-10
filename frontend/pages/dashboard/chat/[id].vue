@@ -1,37 +1,35 @@
 <script setup>
-import { io } from "socket.io-client";
-const messages = ref({});
+const messages = ref([]);
 const newMessages = ref([]);
 const newMessageToSend = ref([]);
 // const isAuthorized = ref();
-const config = useRuntimeConfig();
 const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
+const { user, onlineUsers } = storeToRefs(authStore);
 const route = useRoute();
 definePageMeta({
   layout: "user",
   middleware: "auth",
 });
-const notification = await Notification.requestPermission();
-console.log(notification);
-
 const userReciver = await authStore.getUserById(route.params.id);
 console.log(userReciver);
 
-const ioSocket = io(config.public.apiUrl, {
-  extraHeaders: {
-    Authorization: `Bearer ${useCookie("token").value}`,
-  },
-});
+const { ioSocket } = useSocket();
 
 onBeforeUnmount(() => {
+  console.log("onbefore unomiut");
+  onlineUsers.value = onlineUsers.value.filter((id) => id === user.id);
   ioSocket.disconnect((reasion) => {
     console.log("io disconnect", reasion);
   });
 });
-
+ioSocket.on("updateOnlineUsers", (data) => {
+  console.log("updateOnlineUsers");
+  console.log(data);
+  onlineUsers.value = data;
+});
 console.log(ioSocket);
 ioSocket.on("connect", (_data) => {
+  console.log(_data);
   ioSocket.emit("login", {
     userId: user.value.id,
     receiverId: route.params.id,
@@ -51,6 +49,9 @@ ioSocket.on("chatHistory", (data) => {
   messages.value = data;
 });
 
+ioSocket.on("disconnect", () => {
+  console.log("desconnect");
+});
 onMounted(() => {
   ioSocket.on("newMessage", (data) => {
     console.log("socket newMessage");

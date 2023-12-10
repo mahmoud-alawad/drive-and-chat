@@ -18,7 +18,7 @@ const logout = () => {
 useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
 </script>
 <template>
-  <div class="">
+  <div>
     <template v-if="error">
       <md-modal
         :show="!!error"
@@ -70,9 +70,9 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
       class="fixed left-0 top-0 z-40 h-screen w-64 transition-transform sm:translate-x-0"
       aria-label="Sidebar"
     >
-      <div class="h-full overflow-y-auto bg-gray-50 px-3 py-4 dark:bg-gray-800">
+      <div class="h-full overflow-y-auto bg-gray-50 px-3 py-4">
         <div
-          class="absolute right-2 top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-white"
+          class="absolute right-2 top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-white sm:hidden"
           @click="isMenuOpen = false"
         >
           x
@@ -80,10 +80,10 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
         <ul class="space-y-2 font-medium">
           <li>
             <nuxt-link
-              class="relative mb-4 mt-2 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600"
+              class="relative mb-4 mt-2 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-600 focus:bg-gray-900"
               :to="localePath('/dashboard/profile')"
             >
-              <span class="font-medium text-gray-600 dark:text-gray-300">
+              <span class="font-medium uppercase text-white">
                 {{ user?.username.slice(0, 2) }}</span
               >
             </nuxt-link>
@@ -91,7 +91,7 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
           <li>
             <nuxt-link
               :to="localePath('/dashboard/chat')"
-              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100"
             >
               <Icon name="uil:chat" color="black" />
               <span class="ms-3 flex-1 whitespace-nowrap">{{
@@ -101,7 +101,7 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
           </li>
           <li>
             <nuxt-link
-              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100"
               :to="localePath('/dashboard/media')"
             >
               <Icon name="uil:user" color="black" />
@@ -111,22 +111,20 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
             >
           </li>
           <li>
-            <a
-              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-              @click.prevent="
-                navigateTo(useLocalePath()('/dashboard/media/upload'))
-              "
+            <nuxt-link
+              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100"
+              :to="useLocalePath()('/dashboard/media/upload')"
             >
               <Icon name="uil:upload" color="black" />
               <span class="ms-3 flex-1 whitespace-nowrap">{{
                 $t("upload media")
               }}</span>
-            </a>
+            </nuxt-link>
           </li>
           <li>
             <a
               href="#"
-              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100"
               @click.stop="logout"
             >
               <Icon name="uil:exit" color="black" />
@@ -139,7 +137,7 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
       </div>
     </aside>
 
-    <div class="p-4 sm:ml-64">
+    <div class="p-4 sm:ml-64" :class="{ 'blur-sm': isMenuOpen }">
       <slot />
     </div>
   </div>

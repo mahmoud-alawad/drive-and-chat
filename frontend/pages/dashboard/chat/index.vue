@@ -7,6 +7,11 @@
           v-if="singleUser"
           class="mt-4 flex items-center justify-between rounded-sm bg-slate-500 px-3 py-4 text-white"
         >
+          {{ onlineUsers }}
+          <!-- <span
+            v-if="onlineUsers[singleUser.id] === singleUser.id"
+            class="h-2 w-2 bg-green-600"
+          ></span> -->
           <span class="text-lg font-medium">{{ singleUser?.username }}</span>
           <nuxt-link
             :to="localePath('/dashboard/chat/' + singleUser?.id)"
@@ -27,8 +32,7 @@
 <script setup lang="ts">
 const localePath = useLocalePath();
 const authStore = useAuthStore();
-const { users } = storeToRefs(authStore);
-console.log(users);
+const { users, onlineUsers } = storeToRefs(authStore);
 
 definePageMeta({
   layout: "user",
@@ -36,5 +40,11 @@ definePageMeta({
 });
 
 await authStore.getUsers();
+watch(
+  () => onlineUsers.value,
+  (val) => {
+    console.log(val);
+  }
+);
 </script>
 <style lang=""></style>

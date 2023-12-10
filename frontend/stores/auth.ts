@@ -20,7 +20,14 @@ export const useAuthStore = defineStore("auth", () => {
   const loading = ref<boolean>(false);
   const error = ref<any>();
   const config = useRuntimeConfig();
+  const onlineUsers = ref<string[]>();
+  const { ioSocket } = useSocket();
 
+  ioSocket.on("onlineUsers", (data) => {
+    console.log("updateOnlineUsers");
+    console.log(data);
+    onlineUsers.value = data;
+  });
   const iUser = computed(() => {
     return user.value ? user.value : false;
   });
@@ -197,7 +204,6 @@ export const useAuthStore = defineStore("auth", () => {
         Authorization: "Bearer " + useCookie("token").value,
       },
     });
-    console.log(pending);
 
     normalizeResponse({ data, pending, fetchError });
     if (data.value) {
@@ -217,7 +223,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (realWithType) {
       realWithType?.images?.forEach(async (image: any) => {
         const { url }: any = await nomalizeImage(image.filename);
-        userImages.value.push({ url });
+        userImages.value.push({ ...image, url });
       });
     } else {
       refresh();
@@ -233,6 +239,7 @@ export const useAuthStore = defineStore("auth", () => {
     error,
     loading,
     authenticated,
+    onlineUsers,
     deleteAccount,
     login,
     register,

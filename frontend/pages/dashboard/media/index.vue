@@ -20,12 +20,48 @@
         </div>
       </div>
     </md-modal>
-    <div
-      v-if="userImages.length"
-      class="container grid grid-cols-2 gap-2 lg:grid-cols-3"
-    >
-      <div v-for="(image, index) in userImages" :key="index">
-        <img class="min-h-[3rem] w-full" :src="image.url" />
+    {{ selectUsers }}
+    <div v-if="userImages.length" class="grid">
+      <div class="flex items-center justify-between px-1">
+        <div class="font-medium">{{ $t("name") }}</div>
+        <div class="font-medium">{{ $t("owners") }}</div>
+      </div>
+      <div
+        v-for="(image, index) in userImages"
+        :key="index"
+        class="group flex flex-wrap items-center justify-between border-b border-b-black py-2 text-black first:border-t first:border-t-black md:flex-nowrap"
+      >
+        <md-modal
+          :show="openImage === image.id"
+          @close="
+            () => {
+              openImage = false;
+            }
+          "
+        >
+          <div class="aspect-square p-4">
+            <img class="h-full w-full object-contain" :src="image.url" alt="" />
+          </div>
+        </md-modal>
+        <div
+          class="flex cursor-pointer items-center gap-x-1 p-1"
+          @click="openImage = image.id"
+        >
+          <Icon name="uil:image" color="black" />
+          <span v-if="image.originalName">{{ image.originalName }}</span>
+        </div>
+
+        <div
+          class="flex w-full items-center justify-end gap-x-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:w-1/4"
+        >
+          <Icon class="cursor-pointer" name="uil:user" />
+          <Icon class="cursor-pointer" name="uil:box" />
+          <Icon
+            class="cursor-pointer"
+            name="uil:edit"
+            @click="editImageName(image)"
+          />
+        </div>
       </div>
     </div>
     <div v-else class="flex h-screen w-full items-center justify-center">
@@ -40,8 +76,16 @@
 
 <script setup lang="ts">
 const authStore = useAuthStore();
-const { user, userImages } = storeToRefs(authStore);
+const { user, userImages, users } = storeToRefs(authStore);
+const config = useRuntimeConfig();
+const { t } = useI18n();
 const message = ref();
+const openImage = ref();
+const selectUsers = ref();
+
+selectUsers.value = userImages.value.map(
+  (image: any) => image.userId === user.value?.id && user.value?.id
+);
 
 definePageMeta({
   layout: "user",
@@ -51,6 +95,62 @@ definePageMeta({
 if (!user.value) {
   await authStore.authenticateUser();
 }
-
+if (!users.value?.length) {
+  await authStore.getUsers();
+}
 await authStore.normalizeImages();
+
+const onChangeUserSelect = async () => {
+  //TODO: ooo
+  const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
+    method: "PUT",
+    headers: new Headers({
+      Authorization: "Bearer " + useCookie("token").value,
+    }),
+    body: {
+      sharedUserId: selectUsers.value,
+      imageId: selectUsers.value,
+    },
+  });
+};
+
+const editImageName = async (image: any) => {
+  const prmpt = prompt(t("rename image", image.originalName));
+  console.log(image.originalName);
+
+  console.log(
+    image.originalName.slice(
+      image.originalName.length - 3,
+      image.originalName.length
+    )
+  );
+  if (!prmpt) {
+    return alert(t("please fill the field with valid name"));
+  }
+  const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
+    method: "PUT",
+    headers: new Headers({
+      Authorization: "Bearer " + useCookie("token").value,
+    }),
+    body: {
+      id: image.id,
+      originalName:
+        prmpt +
+        image.originalName.slice(
+          image.originalName.length - 4,
+          image.originalName.length
+        ),
+    },
+  });
+
+  console.log(data);
+  console.log(error);
+  if (data.value) {
+    alert(t("image renamed successfully"));
+    await authStore.normalizeImages();
+  }
+  if (error.value) {
+    alert(error.value);
+  }
+};
 </script>
