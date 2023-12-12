@@ -21,13 +21,7 @@ export const useAuthStore = defineStore("auth", () => {
   const error = ref<any>();
   const config = useRuntimeConfig();
   const onlineUsers = ref<string[]>();
-  const { ioSocket } = useSocket();
 
-  ioSocket.on("onlineUsers", (data) => {
-    console.log("updateOnlineUsers");
-    console.log(data);
-    onlineUsers.value = data;
-  });
   const iUser = computed(() => {
     return user.value ? user.value : false;
   });
@@ -96,8 +90,12 @@ export const useAuthStore = defineStore("auth", () => {
 
   const logout = () => {
     const token = useCookie("token"); // useCookie new hook in nuxt 3
+    const userId = useCookie("userId"); // useCookie new hook in nuxt 3
     authenticated.value = false; // set authenticated  state value to false
     token.value = null; // clear the token cookie
+    userId.value = null; // clear the token cookie
+    // ioSocket.disconnect();
+    // ioSocket.emit("logoutUser", ioSocket.id);
   };
 
   const updateUser = async (payload: Omit<UserType, "id" | "password">) => {
