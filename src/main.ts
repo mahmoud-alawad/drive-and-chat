@@ -5,7 +5,7 @@ import config from "config";
 import cors from "cors";
 import { prisma } from "./db/client";
 import { app, httpServer } from "./app";
-import {io, socketUsers} from "./socket/index";
+import { io, logOutUser, socketUsers } from "./socket/index";
 import { mediaRouter } from "./api/media.router";
 import path from "path";
 import fs from "fs";
@@ -59,20 +59,29 @@ io.on("connection", async (socket) => {
   setTimeout(() => {
     io.emit("updateOnlineUsers", socketUsers);
   }, 100);
-  socket.on('join', async ({ senderId, receiverId }) => {
-    console.log('socketio join');
-      console.log({senderId, receiverId});
-      
+  socket.on("join", async ({ senderId, receiverId }) => {
+    console.log("socketio join");
+    console.log({ senderId, receiverId });
+
     const room = `${senderId}-${receiverId}`;
     socket.join(room);
 
     // Load conversation history from the database
     const messages = await prisma.message.findMany({
-      where: { OR: [{ senderId, receiverId }, { senderId: receiverId, receiverId:senderId}]}
-    })
-    io.to(socket.id).emit('loadMessages', messages);
-  })
-  socket.on('sendMessage', async ({ senderId, receiverId, text }) => {
+      where: {
+        OR: [
+          { senderId, receiverId },
+          { senderId: receiverId, receiverId: senderId },
+        ],
+      },
+      include: {
+        sender: true,
+      },
+    });
+    io.to(socket.id).emit("loadMessages", messages);
+  });
+
+  socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
     // Save the message to the database
     const message = await prisma.message.create({
       data: {
@@ -80,18 +89,25 @@ io.on("connection", async (socket) => {
         receiverId,
         text,
       },
+      include: {
+        sender: true,
+        reciver: true,
+      },
     });
     console.log(socket.rooms);
     console.log(socketUsers);
-    
-    const room = `${senderId}-${receiverId}`;
+
+    // const room = `${senderId}-${receiverId}`;
     // io.sockets.in(room).emit('receiveMessage', message);
-    const ioSender = socketUsers.find(sockUser=> sockUser.userId === senderId)
-    const ioReciver = socketUsers.find(sockUser=> sockUser.userId === receiverId)
-    console.log(ioSender);
-    console.log(ioReciver);
-    io.to(ioSender?.socketId as string).emit('receiveMessage', message);
-    io.to(ioReciver?.socketId as string).emit('receiveMessage', message);
+    const ioSender = socketUsers.find(
+      (sockUser) => sockUser.userId === senderId
+    );
+    const ioReciver = socketUsers.find(
+      (sockUser) => sockUser.userId === receiverId
+    );
+    // io.to(room).emit("receiveMessage", message);
+    socket.to(ioReciver?.socketId as string).emit("receiveMessage", message);
+    socket.to(ioSender?.socketId as string).emit("receiveMessage", message);
   });
 
   socket.on("message", async (data) => {
@@ -112,9 +128,9 @@ io.on("connection", async (socket) => {
     // if (io.sockets.sockets[receiverId]) {
     //   io.to(io.sockets.sockets[receiverId].id).emit("chat message", message);
     // }
-    console.log("sender id", senderId);
-    console.log("reciver id", receiverId);
-    const toSend = socketUsers?.find((sockUser: any) => sockUser?.userId === receiverId)?.socketId
+    const toSend = socketUsers?.find(
+      (sockUser: any) => sockUser?.userId === receiverId
+    )?.socketId;
     // io.to(socketUsers[senderId]).emit("newMessage", message);
     if (toSend?.length) io.to(toSend).emit("newMessage", message);
 
@@ -129,16 +145,7 @@ io.on("connection", async (socket) => {
     console.log("stop typing");
   });
 
-  socket.on("logoutUser", (d) => {
-    console.log('logoutuser');
-    const disconnectedUser = socketUsers.find((sockUser) => sockUser.userId === socket.data?.user?.id);
-    if (disconnectedUser) {
-      socketUsers = socketUsers.filter((sockUser: any) => sockUser?.userId !== disconnectedUser.userId)
-      setTimeout(() => {
-        io.emit("updateOnlineUsers", socketUsers);
-      }, 100);
-    }
-  })
+  socket.on("logoutUser", logOutUser);
 
   io.on("disconnect", () => {
     console.log("User logoutUser");
