@@ -16,11 +16,14 @@ if (!user.value) {
   await authStore.authenticateUser();
 }
 
-const userReciver = await authStore.getUserById(route.params.id);
-console.log(userReciver);
 ioSocket.emit("join", { senderId: user.value.id, receiverId: route.params.id });
-ioSocket.on("loadMessages", (messages) => {
-  console.log("load messages", messages);
+ioSocket.on("loadMessages", (data) => {
+  messages.value = data;
+});
+
+ioSocket.on("receiveMessage", (data) => {
+  messages.value.push(data);
+  console.log(messages.value);
 });
 onMounted(() => {
   ioSocket.on("newMessage", (data) => {
@@ -39,19 +42,24 @@ const sendMessage = () => {
     receiverId: route.params.id,
   };
   ioSocket.emit("sendMessage", dataToSend);
-  messages.value.push(dataToSend);
+  messages.value.push({ ...dataToSend, sender: user.value });
 };
 </script>
 <template>
   <div
     class="relative flex h-[90svh] flex-col items-center justify-between rounded-md bg-gray-200"
   >
-    <div class="flex h-[94%] w-full flex-col justify-end gap-2 p-2">
+    <div
+      class="flex h-full w-full flex-col justify-end gap-2 overflow-y-scroll p-2"
+    >
       <div
         v-for="(message, index) in messages"
         :key="index"
-        class="flex max-w-sm items-center justify-between break-all rounded-sm bg-slate-500 px-2 py-1 text-white"
-        :class="{ 'bg-red-400': message.senderId === user.id }"
+        class="flex max-w-sm items-center justify-between break-all rounded-sm px-2 py-1 text-white"
+        :class="{
+          'bg-red-400': message.senderId === user?.id,
+          'self-end bg-slate-500': message.senderId !== user?.id,
+        }"
       >
         <span v-if="message.sender" class="text-sm text-red-900">{{
           message.sender.username
