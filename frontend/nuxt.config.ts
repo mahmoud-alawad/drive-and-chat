@@ -4,7 +4,10 @@ import en from "./locales/en-US.json";
 import ar from "./locales/ar-AR.json";
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
+  devServer: {
+    port: 3000,
+  },
   nitro: {
     compressPublicAssets: true,
     logLevel: 4,
