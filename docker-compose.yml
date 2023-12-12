@@ -23,6 +23,28 @@ services:
     networks:
       - node-network
 
+  # frontend:
+  #   image: node:20
+  #   working_dir: "/app"
+  #   user: ${DOCKER_USER:-1000}:${DOCKER_USER:-1000}
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - db
+  #     - express
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #   command: |-
+  #     bash -c "
+  #       set -eux
+  #       yarn
+  #       yarn dev --host -p 3000
+  #     "
+  #   networks:
+  #     - node-network
+
   db:
     image: mysql:5.7
     container_name: mysql
@@ -62,5 +84,5 @@ volumes:
 
 networks:
   node-network:
-
+    driver: bridge
 
