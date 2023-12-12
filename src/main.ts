@@ -5,11 +5,10 @@ import config from "config";
 import cors from "cors";
 import { prisma } from "./db/client";
 import { app, httpServer } from "./app";
-import io from "./socket";
+import {io, socketUsers} from "./socket/index";
 import { mediaRouter } from "./api/media.router";
 import path from "path";
 import fs from "fs";
-import { verifyToken } from "./api/middleware";
 
 app.use(cors({ origin: "*" }));
 
@@ -50,31 +49,6 @@ app.use((req, res, next) => {
 });
 
 const port = config.get("server.port");
-const socketUserMap = new Map();
-const socketUsers: { [key: string]: string } = {};
-
-io.use(async (socket, next) => {
-  const authHeader = socket.handshake.headers.authorization as string;
-  const err = new Error("Authentication error");
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    next(err);
-  }
-
-  try {
-    const verifiedPayload = await verifyToken(authHeader);
-    const user = await prisma.user.findUnique({
-      where: { id: verifiedPayload?.id },
-    });
-    socket.data.user = user;
-    if (user) {
-      socket.join(user.id);
-    }
-  } catch (error) {
-    next(error);
-  }
-  next();
-});
 
 io.on("error", (err) => {
   console.log("socket error");
@@ -82,29 +56,42 @@ io.on("error", (err) => {
 });
 
 io.on("connection", async (socket) => {
-  socket.on("login", async (payload) => {
-    socketUsers[payload.userId] = socket.id;
-    console.log(`User ${payload.userId} connected`);
-    const userMessages = await prisma.message.findMany({
-      where: { senderId: payload.userId, receiverId: payload.receiverId },
-      orderBy: {
-        createdAt: "asc", // or 'desc' for descending order
-      },
-      include: {
-        sender: true,
+  setTimeout(() => {
+    io.emit("updateOnlineUsers", socketUsers);
+  }, 100);
+  socket.on('join', async ({ senderId, receiverId }) => {
+    console.log('socketio join');
+      console.log({senderId, receiverId});
+      
+    const room = `${senderId}-${receiverId}`;
+    socket.join(room);
+
+    // Load conversation history from the database
+    const messages = await prisma.message.findMany({
+      where: { OR: [{ senderId, receiverId }, { senderId: receiverId, receiverId:senderId}]}
+    })
+    io.to(socket.id).emit('loadMessages', messages);
+  })
+  socket.on('sendMessage', async ({ senderId, receiverId, text }) => {
+    // Save the message to the database
+    const message = await prisma.message.create({
+      data: {
+        senderId,
+        receiverId,
+        text,
       },
     });
-    const reciverMessages = await prisma.message.findMany({
-      where: { senderId: payload.receiverId, receiverId: payload.senderId },
-      orderBy: {
-        createdAt: "asc", // or 'desc' for descending order
-      },
-      include: {
-        sender: true,
-      },
-    });
-    socket.emit("updateOnlineUsers", Object.keys(socketUsers));
-    socket.emit("chatHistory", [...userMessages, ...reciverMessages]);
+    console.log(socket.rooms);
+    console.log(socketUsers);
+    
+    const room = `${senderId}-${receiverId}`;
+    // io.sockets.in(room).emit('receiveMessage', message);
+    const ioSender = socketUsers.find(sockUser=> sockUser.userId === senderId)
+    const ioReciver = socketUsers.find(sockUser=> sockUser.userId === receiverId)
+    console.log(ioSender);
+    console.log(ioReciver);
+    io.to(ioSender?.socketId as string).emit('receiveMessage', message);
+    io.to(ioReciver?.socketId as string).emit('receiveMessage', message);
   });
 
   socket.on("message", async (data) => {
@@ -127,34 +114,36 @@ io.on("connection", async (socket) => {
     // }
     console.log("sender id", senderId);
     console.log("reciver id", receiverId);
-
+    const toSend = socketUsers?.find((sockUser: any) => sockUser?.userId === receiverId)?.socketId
     // io.to(socketUsers[senderId]).emit("newMessage", message);
-    io.to(socketUsers[receiverId]).emit("newMessage", message);
+    if (toSend?.length) io.to(toSend).emit("newMessage", message);
+
     io.emit("message", data);
   });
-  // when the client emits 'typing', we broadcast it to others
+
   socket.on("typing", () => {
     console.log("typing");
   });
 
-  // when the client emits 'stop typing', we broadcast it to others
-  socket.on("stop typing", () => {
+  socket.on("stopTyping", () => {
     console.log("stop typing");
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-    const disconnectedUserId = Object.keys(socketUsers).find(
-      (key) => socketUsers[key] === socket.id
-    );
-    if (disconnectedUserId) {
-      delete socketUsers[disconnectedUserId];
-      socket.emit("updateOnlineUsers", Object.keys(socketUsers));
+  socket.on("logoutUser", (d) => {
+    console.log('logoutuser');
+    const disconnectedUser = socketUsers.find((sockUser) => sockUser.userId === socket.data?.user?.id);
+    if (disconnectedUser) {
+      socketUsers = socketUsers.filter((sockUser: any) => sockUser?.userId !== disconnectedUser.userId)
+      setTimeout(() => {
+        io.emit("updateOnlineUsers", socketUsers);
+      }, 100);
     }
+  })
+
+  io.on("disconnect", () => {
+    console.log("User logoutUser");
   });
 });
-
-io.emit("updateOnlineUsers", Object.keys(socketUsers));
 
 httpServer.listen(port, function () {
   console.log(config.get("meta.title") + "Running on : ", port);

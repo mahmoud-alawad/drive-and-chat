@@ -18,6 +18,11 @@ const users = [
     password: "password",
   },
   {
+    username: "free:300",
+    email: "free@local.it",
+    password: "password"
+  },
+  {
     username: "fatima",
     email: "fatima@gmail.com",
     password: "password",
