@@ -4,15 +4,24 @@
       users
       <template v-for="(singleUser, index) in users" :key="index">
         <div
-          v-if="singleUser"
+          v-if="singleUser && singleUser.id !== user?.id"
           class="mt-4 flex items-center justify-between rounded-sm bg-slate-500 px-3 py-4 text-white"
         >
-          {{ onlineUsers }}
-          <!-- <span
-            v-if="onlineUsers[singleUser.id] === singleUser.id"
-            class="h-2 w-2 bg-green-600"
-          ></span> -->
+          <div class="flex">
+            <div
+              class="relative flex h-10 w-10 items-center justify-center rounded-full bg-white uppercase text-black"
+            >
+              {{ singleUser.username?.slice(0, 2) }}
+              <span
+                v-if="
+              onlineUsers?.find((onUser:any) => onUser.userId === singleUser.id && onUser.socketId !== ioSocket.id)
+            "
+                class="absolute -top-1 right-0 h-4 w-4 rounded-full bg-green-600"
+              ></span>
+            </div>
+          </div>
           <span class="text-lg font-medium">{{ singleUser?.username }}</span>
+
           <nuxt-link
             :to="localePath('/dashboard/chat/' + singleUser?.id)"
             class="flex items-center justify-center rounded-full bg-primary p-2 hover:bg-primary/80 focus:right-4"
@@ -32,19 +41,29 @@
 <script setup lang="ts">
 const localePath = useLocalePath();
 const authStore = useAuthStore();
-const { users, onlineUsers } = storeToRefs(authStore);
+const { user, users, onlineUsers } = storeToRefs(authStore);
 
 definePageMeta({
   layout: "user",
   middleware: "auth",
 });
+const { ioSocket } = useSocket();
 
 await authStore.getUsers();
-watch(
-  () => onlineUsers.value,
-  (val) => {
-    console.log(val);
-  }
-);
+// @ts-ignore
+ioSocket.on("connect", (_data) => {
+  ioSocket.emit("login", {
+    userId: user.value?.id,
+  });
+});
+
+ioSocket.on("updateOnlineUsers", (data) => {
+  console.log("updateOnlineUsers");
+  onlineUsers.value = data;
+});
+
+onBeforeUnmount(() => {
+  ioSocket.emit("logoutUser", ioSocket.id);
+});
 </script>
 <style lang=""></style>

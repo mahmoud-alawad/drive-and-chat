@@ -8,13 +8,14 @@ const isMenuOpen = ref<boolean>(false);
 const sidebar = ref<HTMLElement>();
 const sidebarTrigger = ref<HTMLElement>();
 
-await authStore.authenticateUser();
-
 const toggleMenu = () => (isMenuOpen.value = !isMenuOpen.value);
 const logout = () => {
   authStore.logout();
 };
-
+console.log(user);
+if (!user.value) {
+  await authStore.authenticateUser();
+}
 useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
 </script>
 <template>
@@ -29,8 +30,8 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
           }
         "
       >
-        <div v-if="error && error.data" class="p-3 lg:p-6">
-          {{ error.data || error.data?.message }}
+        <div v-if="error" class="p-3 lg:p-6">
+          <div>{{ error }}</div>
         </div>
       </md-modal>
     </template>
@@ -77,17 +78,20 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
         >
           x
         </div>
-        <ul class="space-y-2 font-medium">
-          <li>
-            <nuxt-link
-              class="relative mb-4 mt-2 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-600 focus:bg-gray-900"
-              :to="localePath('/dashboard/profile')"
+        <div>
+          <nuxt-link
+            class="relative mb-4 mt-2 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-600 focus:bg-gray-900"
+            :to="localePath('/dashboard/profile')"
+          >
+            <span
+              v-if="user?.username"
+              class="font-medium uppercase text-white"
             >
-              <span class="font-medium uppercase text-white">
-                {{ user?.username.slice(0, 2) }}</span
-              >
-            </nuxt-link>
-          </li>
+              {{ user?.username?.slice(0, 2) }}</span
+            >
+          </nuxt-link>
+        </div>
+        <ul class="space-y-2 font-medium">
           <li>
             <nuxt-link
               :to="localePath('/dashboard/chat')"
@@ -104,7 +108,7 @@ useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
               class="group flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100"
               :to="localePath('/dashboard/media')"
             >
-              <Icon name="uil:user" color="black" />
+              <Icon name="uil:images" color="black" />
               <span class="ms-3 flex-1 whitespace-nowrap">{{
                 $t("my media")
               }}</span></nuxt-link

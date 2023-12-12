@@ -44,7 +44,7 @@
           </div>
         </md-modal>
         <div
-          class="flex cursor-pointer items-center gap-x-1 p-1"
+          class="flex cursor-pointer items-center gap-x-1 p-1 md:w-3/4"
           @click="openImage = image.id"
         >
           <Icon name="uil:image" color="black" />
@@ -52,15 +52,24 @@
         </div>
 
         <div
-          class="flex w-full items-center justify-end gap-x-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:w-1/4"
+          class="flex w-full items-center gap-x-[1.2em] opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:w-1/4 md:justify-end"
         >
-          <Icon class="cursor-pointer" name="uil:user" />
-          <Icon class="cursor-pointer" name="uil:box" />
           <Icon
-            class="cursor-pointer"
+            class="cursor-pointer text-xl font-medium lg:text-2xl"
+            name="uil:user-plus"
+          />
+          <Icon
+            class="cursor-pointer text-xl font-medium lg:text-2xl"
+            name="uil:image-download"
+          />
+          <Icon
+            class="cursor-pointer text-xl font-medium lg:text-2xl"
             name="uil:edit"
             @click="editImageName(image)"
           />
+          <div class="absolute left-0 top-full w-full">
+            <input type="text" />
+          </div>
         </div>
       </div>
     </div>
@@ -100,19 +109,20 @@ if (!users.value?.length) {
 }
 await authStore.normalizeImages();
 
-const onChangeUserSelect = async () => {
-  //TODO: ooo
-  const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
-    method: "PUT",
-    headers: new Headers({
-      Authorization: "Bearer " + useCookie("token").value,
-    }),
-    body: {
-      sharedUserId: selectUsers.value,
-      imageId: selectUsers.value,
-    },
-  });
-};
+// const onChangeUserSelect = async () => {
+//   const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
+//     method: "PUT",
+//     headers: new Headers({
+//       Authorization: "Bearer " + useCookie("token").value,
+//     }),
+//     body: {
+//       sharedUserId: selectUsers.value,
+//       imageId: selectUsers.value,
+//     },
+//   });
+//   console.log(data);
+//   console.log(error);
+// };
 
 const editImageName = async (image: any) => {
   const prmpt = prompt(t("rename image", image.originalName));

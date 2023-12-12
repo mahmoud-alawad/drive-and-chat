@@ -8,6 +8,9 @@ definePageMeta({
   layout: "user",
   middleware: "auth",
 });
+// const authStore = useAuthStore();
+// const { user, onlineUsers } = storeToRefs(authStore);
+
 onMounted(async () => {
   await Notification.requestPermission();
 });

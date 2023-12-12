@@ -1,56 +1,26 @@
 <script setup>
+definePageMeta({
+  layout: "user",
+  middleware: "auth",
+});
 const messages = ref([]);
 const newMessages = ref([]);
 const newMessageToSend = ref([]);
 // const isAuthorized = ref();
 const authStore = useAuthStore();
-const { user, onlineUsers } = storeToRefs(authStore);
+const { user } = storeToRefs(authStore);
 const route = useRoute();
-definePageMeta({
-  layout: "user",
-  middleware: "auth",
-});
-const userReciver = await authStore.getUserById(route.params.id);
-console.log(userReciver);
-
 const { ioSocket } = useSocket();
 
-onBeforeUnmount(() => {
-  console.log("onbefore unomiut");
-  onlineUsers.value = onlineUsers.value.filter((id) => id === user.id);
-  ioSocket.disconnect((reasion) => {
-    console.log("io disconnect", reasion);
-  });
-});
-ioSocket.on("updateOnlineUsers", (data) => {
-  console.log("updateOnlineUsers");
-  console.log(data);
-  onlineUsers.value = data;
-});
-console.log(ioSocket);
-ioSocket.on("connect", (_data) => {
-  console.log(_data);
-  ioSocket.emit("login", {
-    userId: user.value.id,
-    receiverId: route.params.id,
-  });
-  ioSocket.emit("getMessages", {
-    receiverId: route.params.id,
-  });
-});
+if (!user.value) {
+  await authStore.authenticateUser();
+}
 
-ioSocket.on("error", (data) => {
-  console.log("socket error");
-  console.log(data);
-});
-
-ioSocket.on("chatHistory", (data) => {
-  console.log("chatHistory", data);
-  messages.value = data;
-});
-
-ioSocket.on("disconnect", () => {
-  console.log("desconnect");
+const userReciver = await authStore.getUserById(route.params.id);
+console.log(userReciver);
+ioSocket.emit("join", { senderId: user.value.id, receiverId: route.params.id });
+ioSocket.on("loadMessages", (messages) => {
+  console.log("load messages", messages);
 });
 onMounted(() => {
   ioSocket.on("newMessage", (data) => {
@@ -68,7 +38,7 @@ const sendMessage = () => {
     text: newMessageToSend.value,
     receiverId: route.params.id,
   };
-  ioSocket.emit("message", dataToSend);
+  ioSocket.emit("sendMessage", dataToSend);
   messages.value.push(dataToSend);
 };
 </script>
