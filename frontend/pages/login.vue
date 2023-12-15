@@ -86,4 +86,3 @@ const signIn = async () => {
   navigateTo(useLocalePath()("dashboard"));
 };
 </script>
-<style lang=""></style>
