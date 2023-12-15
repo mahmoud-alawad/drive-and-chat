@@ -1,4 +1,3 @@
-// stores/counter.js
 import { acceptHMRUpdate, defineStore } from "pinia";
 
 export type UserType = {
@@ -9,6 +8,7 @@ export type UserType = {
   images?: any;
   reciverMessages?: any;
   senderMessages?: any;
+  previewMessages?: any;
 };
 
 export const useAuthStore = defineStore("auth", () => {
@@ -19,7 +19,6 @@ export const useAuthStore = defineStore("auth", () => {
   const token = ref<string>();
   const loading = ref<boolean>(false);
   const error = ref<any>();
-  const config = useRuntimeConfig();
   const onlineUsers = ref<string[]>();
 
   const iUser = computed(() => {
@@ -35,11 +34,7 @@ export const useAuthStore = defineStore("auth", () => {
       loading.value = false;
       error.value = null;
     }
-    if (pending.value) {
-      loading.value = true;
-    } else {
-      loading.value = false;
-    }
+    loading.value = !!pending.value;
     if (fetchError.value) {
       error.value = fetchError.value;
     }
@@ -50,13 +45,14 @@ export const useAuthStore = defineStore("auth", () => {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(config.public.apiUrl + "/api/auth/login", {
+    }: any = await useApi("/api/auth/login", {
       method: "POST",
       body: {
         email: payload.email,
         password: payload.password,
       },
     });
+
     normalizeResponse({ data, pending, fetchError });
 
     if (data.value) {
@@ -74,7 +70,7 @@ export const useAuthStore = defineStore("auth", () => {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(config.public.apiUrl + "/api/auth/register", {
+    }: any = await useApi("/api/auth/register", {
       method: "POST",
       body: payload,
     });
@@ -94,8 +90,6 @@ export const useAuthStore = defineStore("auth", () => {
     authenticated.value = false; // set authenticated  state value to false
     token.value = null; // clear the token cookie
     userId.value = null; // clear the token cookie
-    // ioSocket.disconnect();
-    // ioSocket.emit("logoutUser", ioSocket.id);
   };
 
   const updateUser = async (payload: Omit<UserType, "id" | "password">) => {
@@ -103,7 +97,7 @@ export const useAuthStore = defineStore("auth", () => {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(config.public.apiUrl + "/api/user", {
+    }: any = await useApi("/api/user", {
       headers: {
         Authorization: `Bearer ${useCookie("token").value}`,
       },
@@ -123,7 +117,7 @@ export const useAuthStore = defineStore("auth", () => {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(config.public.apiUrl + "/api/user", {
+    }: any = await useApi("/api/user", {
       headers: {
         Authorization: `Bearer ${useCookie("token").value}`,
       },
@@ -144,11 +138,7 @@ export const useAuthStore = defineStore("auth", () => {
       data,
       pending,
       error: fetchError,
-    } = await useFetch(config.public.apiUrl + "/api/user/users", {
-      headers: {
-        Authorization: "Bearer " + useCookie("token").value,
-      },
-    });
+    } = await useApi("/api/user/users");
 
     normalizeResponse({ data, pending, fetchError });
 
@@ -174,36 +164,29 @@ export const useAuthStore = defineStore("auth", () => {
       pending,
       error: fetchError,
       refresh,
-    } = await useFetch(config.public.apiUrl + "/api/user/me", {
-      method: "get",
-      headers: {
-        Authorization: "Bearer " + useCookie("token").value,
-      },
-    });
+    } = await useApi("/api/user/me");
+    console.log(data);
 
     normalizeResponse({ data, pending, fetchError });
 
-    setUser(data.value as UserType);
+    setUser(data.value as any);
     return { data, fetchError, refresh };
   };
 
   const nomalizeImage = async (filename?: string) => {
-    const baseUrl = (config.public.apiUrl +
-      `/api/user/images/${filename}`) as string;
+    const baseUrl = `/api/user/images/${filename}` as string;
     const {
       data,
       pending,
       error: fetchError,
-    }: any = await useFetch(baseUrl, {
+    }: any = await useApi(baseUrl, {
       query: {
         filename,
-      },
-      headers: {
-        Authorization: "Bearer " + useCookie("token").value,
       },
     });
 
     normalizeResponse({ data, pending, fetchError });
+
     if (data.value) {
       return { url: URL.createObjectURL(data.value) };
     }

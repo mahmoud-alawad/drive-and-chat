@@ -28,7 +28,7 @@ useHead({
         "
       >
         <div v-if="error" class="p-3 lg:p-6">
-          {{ error.data?.message || error.data }}
+          {{ error.data }}
         </div>
       </md-modal>
     </template>
