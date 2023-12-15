@@ -58,7 +58,7 @@ export const getById = async <Key extends keyof User>(
   id: string
 ): Promise<Pick<User, Key> | null> => {
   const result = await prisma.user.findUnique({
-    where: { id },
+    where: { id: id },
     include: {
       reciverMessages: true,
       senderMessages: true,
