@@ -101,9 +101,6 @@ definePageMeta({
   middleware: "auth",
 });
 
-if (!user.value) {
-  await authStore.authenticateUser();
-}
 if (!users.value?.length) {
   await authStore.getUsers();
 }
