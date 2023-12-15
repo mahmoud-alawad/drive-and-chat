@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const authStore = useAuthStore();
-const { user, error, loading } = storeToRefs(authStore);
+const { user, loading } = storeToRefs(authStore);
 const localePath = useLocalePath();
-const token = useCookie("token");
 
 const isMenuOpen = ref<boolean>(false);
 const sidebar = ref<HTMLElement>();
@@ -12,29 +11,27 @@ const toggleMenu = () => (isMenuOpen.value = !isMenuOpen.value);
 const logout = () => {
   authStore.logout();
 };
-console.log(user);
-if (!user.value) {
-  await authStore.authenticateUser();
-}
+const { refresh } = await authStore.authenticateUser();
+
+watch(
+  () => user.value,
+  (newUser) => {
+    console.log("newuser");
+    console.log(newUser);
+
+    if (!newUser || newUser === null) {
+      refresh();
+      console.log(newUser);
+    }
+  }
+);
 useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
+onMounted(async () => {
+  await Notification.requestPermission();
+});
 </script>
 <template>
   <div>
-    <template v-if="error">
-      <md-modal
-        :show="!!error"
-        @close="
-          () => {
-            error = null;
-            token = null;
-          }
-        "
-      >
-        <div v-if="error" class="p-3 lg:p-6">
-          <div>{{ error }}</div>
-        </div>
-      </md-modal>
-    </template>
     <div v-if="loading">
       <loading-state />
     </div>
