@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-screen w-full">
+  <div class="relative min-h-[60vh] w-full">
     <md-modal
       :show="!!message"
       @close="
@@ -20,7 +20,6 @@
         </div>
       </div>
     </md-modal>
-    {{ selectUsers }}
     <div v-if="userImages.length" class="grid">
       <div class="flex items-center justify-between px-1">
         <div class="font-medium">{{ $t("name") }}</div>
@@ -73,11 +72,11 @@
         </div>
       </div>
     </div>
-    <div v-else class="flex h-screen w-full items-center justify-center">
+    <div v-else class="flex min-h-[60vh] w-full items-center justify-center">
       <div
         class="flex min-h-[20vh] animate-bounce items-center justify-center rounded-md p-4 text-red-600 shadow-md"
       >
-        {{ $t("pages.dashboard.media.noImages") }}
+        {{ $t("you don't have images") }}
       </div>
     </div>
   </div>
@@ -105,21 +104,6 @@ if (!users.value?.length) {
   await authStore.getUsers();
 }
 await authStore.normalizeImages();
-
-// const onChangeUserSelect = async () => {
-//   const { data, error } = await useFetch(config.public.apiUrl + "/upload", {
-//     method: "PUT",
-//     headers: new Headers({
-//       Authorization: "Bearer " + useCookie("token").value,
-//     }),
-//     body: {
-//       sharedUserId: selectUsers.value,
-//       imageId: selectUsers.value,
-//     },
-//   });
-//   console.log(data);
-//   console.log(error);
-// };
 
 const editImageName = async (image: any) => {
   const prmpt = prompt(t("rename image", image.originalName));
