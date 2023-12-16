@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { locale, t } = useI18n();
-const { error, loading } = storeToRefs(useAuthStore());
+const { error } = storeToRefs(useAuthStore());
 
 useHead({
   htmlAttrs: {
@@ -9,6 +9,7 @@ useHead({
       return t("locale.dir") as "ltr" | "rtl" | "auto";
     }),
   },
+  script: [{ children: "console.log('Hello, world!');" }],
   titleTemplate(title) {
     return title ? `${title} - ${t("site.name")}` : `${t("site.name")}`;
   },
@@ -16,8 +17,8 @@ useHead({
 </script>
 <template>
   <NuxtLayout>
-    <NuxtLoadingIndicator color="FF4A01" />
-    <div v-if="loading" class="animate-bounce">Loading........</div>
+    <NuxtLoadingIndicator color="#FF4A01" />
+    <page-spinner />
     <template v-if="error">
       <md-modal
         :show="!!error"
