@@ -1,9 +1,5 @@
 <script setup lang="ts">
 const localePath = useLocalePath();
-const router = useRouter();
-const back = () => {
-  router.back();
-};
 
 useLocaleHead({
   addDirAttribute: true,
@@ -12,11 +8,6 @@ useLocaleHead({
 });
 </script>
 <template>
-  <!--
-
-    Template below is intended to be removed..
-
-  -->
   <div class="container mx-auto max-w-screen-lg px-8">
     <header class="mb-5">
       <nav class="flex flex-row justify-between pb-5 pt-10">
@@ -47,14 +38,7 @@ useLocaleHead({
           <LanguageSelector />
         </div>
       </nav>
-      <div class="flex w-full items-start">
-        <button
-          class="w-[3rem] rounded-md bg-slate-700 p-1 text-center text-white hover:bg-slate-600 focus:ring-4"
-          @click.prevent="back"
-        >
-          {{ $t("back") }}
-        </button>
-      </div>
+      <back-arrow />
     </header>
     <slot />
 
