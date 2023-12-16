@@ -59,13 +59,13 @@ const uploadImage = async () => {
 };
 </script>
 <template>
-  <div class="container">
+  <div class="container flex min-h-[60vh] items-center justify-center">
     <md-modal :show="!!message" @close="onCloseModal">
       <div class="p-2 shadow-md">
         {{ message }}
       </div>
     </md-modal>
-    <div class="p-2 shadow-md">
+    <div class="p-4 shadow-lg">
       <form
         class="grid gap-4"
         enctype="multipart/form-data"
