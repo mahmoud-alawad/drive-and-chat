@@ -5,7 +5,26 @@
   "locale.dir": "rtl",
   "inbox": "الرساال",
   "users": "المستخدمين",
-  "layout":{
+  "back": "رجوع",
+  "upload media": "رفع الصور",
+  "my media": "صوري",
+  "chat": "محادثات",
+  "sign in to your account": "تسجيل الدخول إلى حسابك",
+  "Your email": "بريدك الالكتروني",
+  "Password": "كلمة المرور",
+  "Forgot password": "هل نسيت كلمة السر",
+  "Sign in": "تسجيل الدخول",
+  "Sign up": "تسجيل حسابك ",
+  "or": "او",
+  "Your name": "اسمك",
+  "Register your account": "سجل حسابك",
+  "update profile": "تحديث الملف الشخصي",
+  "delete account": "حذف الحساب",
+  "user name": "اسم المستخدم",
+  "email": "البريد الإلكتروني",
+  "you don't have images": "ليس لديك صور",
+  "Type your message": "اكتب رسالتك",
+  "layout": {
     "menu": "قامه",
     "logout": "تسجيل الخروج"
   },
@@ -31,6 +50,15 @@
       "title": "ملفات تعريف الارتباط الضرورية",
       "description": "هذه ملفات ضرورية للعمل الصحيح لموقع الويب. بدون هذه الملفات، لن يعمل الموقع بشكل صحيح"
     }
+  },
+  "crumb": {
+    "home": "المنزل",
+    "user": "مستخدم",
+    "dashboard": "لوحه التحكم",
+    "chat": "محادثات",
+    "media": "الصور",
+    "profile": "ملفي الشخصي",
+    "upload": "تحميل صور"
   },
   "error": {
     "return": "العودة",
