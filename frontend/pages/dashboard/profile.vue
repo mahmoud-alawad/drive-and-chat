@@ -34,8 +34,8 @@ const deleteAccount = async () => {
 };
 </script>
 <template>
-  <div class="flex h-[90vh] w-full items-center justify-center">
-    <div class="w-10/12 max-w-xl">
+  <div class="flex min-h-[80vh] w-full items-center justify-center">
+    <div class="md:w-10/12 md:max-w-xl">
       <div class="rounded-lg bg-white py-3 shadow-xl">
         <div class="photo-wrapper mx-auto aspect-square w-1/2 p-2">
           <img
@@ -46,14 +46,16 @@ const deleteAccount = async () => {
         </div>
         <form class="grid w-full gap-4 p-2" @submit.prevent="handleForm">
           <div class="flex items-center gap-x-4">
-            <label class="uppercase" for="username">user name :</label>
+            <label class="uppercase" for="username"
+              >{{ $t("user name") }} :</label
+            >
             <input
               v-model="userUpdate.username"
               class="text-xl font-medium leading-8 text-gray-400"
             />
           </div>
           <div class="flex items-center gap-x-2">
-            <label class="uppercase" for="email">email</label>
+            <label class="uppercase" for="email">{{ $t("email") }}</label>
             <input
               v-model="userUpdate.email"
               class="text-xl font-medium leading-8 text-gray-400"
