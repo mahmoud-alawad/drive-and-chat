@@ -3,6 +3,7 @@ version: "3"
 services:
   express:
     image: node:20
+    container_name: express
     working_dir: "/usr/src/app"
     user: ${DOCKER_USER:-1000}:${DOCKER_USER:-1000}
     env_file:
@@ -12,7 +13,7 @@ services:
     ports:
       - "$PORT:$PORT"
     volumes:
-      - ./:/usr/src/app
+      - ${PWD}/:/usr/src/app
     command: |-
       bash -c "
         set -eux
@@ -25,6 +26,7 @@ services:
 
   frontend:
     image: node:20
+    container_name: frontend
     working_dir: "/app"
     user: ${DOCKER_USER:-1000}:${DOCKER_USER:-1000}
     env_file:
@@ -35,7 +37,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ${PWD}/frontend:/app
     command: |-
       bash -c "
         set -eux
@@ -85,4 +87,3 @@ volumes:
 networks:
   node-network:
     driver: bridge
-
