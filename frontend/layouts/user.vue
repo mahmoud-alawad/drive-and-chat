@@ -2,11 +2,16 @@
 const authStore = useAuthStore();
 const { user, loading } = storeToRefs(authStore);
 const localePath = useLocalePath();
+const route = useRoute();
+const router = useRouter();
 
 const isMenuOpen = ref<boolean>(false);
 const sidebar = ref<HTMLElement>();
 const sidebarTrigger = ref<HTMLElement>();
-
+const nameDictionary = {
+  "/": "home",
+  "/ar": "home",
+};
 const toggleMenu = () => (isMenuOpen.value = !isMenuOpen.value);
 const logout = () => {
   authStore.logout();
@@ -25,7 +30,7 @@ watch(
     }
   }
 );
-useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
+// useClickOutSide([sidebar], () => (isMenuOpen.value = false), sidebarTrigger);
 onMounted(async () => {
   await Notification.requestPermission();
 });
@@ -58,19 +63,23 @@ onMounted(async () => {
         ></path>
       </svg>
     </button>
+    <div class="container w-full">
+      <back-arrow />
+    </div>
+
     <aside
       id="default-sidebar"
       ref="sidebar"
       :class="{
-        'translate-x-0': isMenuOpen,
-        '-translate-x-full': !isMenuOpen,
+        'translate-x-0 rtl:translate-x-1/2': isMenuOpen,
+        'ltr:-translate-x-full rtl:translate-x-[150%]': !isMenuOpen,
       }"
-      class="fixed left-0 top-0 z-40 h-screen w-64 transition-transform sm:translate-x-0"
+      class="fixed left-0 top-0 z-50 h-screen w-64 transition-transform sm:ltr:translate-x-0 sm:rtl:translate-x-[150%] md:rtl:translate-x-0"
       aria-label="Sidebar"
     >
       <div class="h-full overflow-y-auto bg-gray-50 px-3 py-4">
         <div
-          class="absolute right-2 top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-white sm:hidden"
+          class="absolute top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-white ltr:right-2 rtl:left-2 sm:hidden"
           @click="isMenuOpen = false"
         >
           x
@@ -134,12 +143,20 @@ onMounted(async () => {
               }}</span>
             </a>
           </li>
+          <li>
+            <LanguageSelector />
+          </li>
         </ul>
       </div>
     </aside>
 
     <div class="p-4 sm:ml-64" :class="{ 'blur-sm': isMenuOpen }">
       <slot />
+      <bread-crumb
+        :route="route"
+        :router="router"
+        :name-dictionary="nameDictionary"
+      />
     </div>
   </div>
 </template>
