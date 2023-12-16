@@ -4,7 +4,10 @@
       <template v-for="(singleUser, index) in compUser" :key="index">
         <div
           v-if="singleUser && singleUser.id !== user?.id"
-          class="mt-4 flex items-center justify-between rounded-sm bg-slate-500 px-3 py-4 text-white"
+          class="mt-4 flex cursor-pointer items-center justify-between rounded-sm bg-slate-500 px-3 py-4 text-white"
+          @click="
+            navigateTo(useLocalePath()('/dashboard/chat/' + singleUser?.id))
+          "
         >
           <div class="flex items-center">
             <div
