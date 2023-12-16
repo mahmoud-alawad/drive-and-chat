@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>{{ user }}</div>
+    <div class="overflow-hidden">//TODO: dashboard home</div>
   </div>
 </template>
 <script setup lang="ts">
