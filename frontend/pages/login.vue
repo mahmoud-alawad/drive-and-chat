@@ -8,14 +8,14 @@
         <h1
           class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl"
         >
-          Sign in to your account
+          {{ $t("sign in to your account") }}
         </h1>
         <form class="space-y-4 md:space-y-6" @submit.prevent="signIn">
           <div>
             <label
               for="email"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Your email</label
+              >{{ $t("Your email") }}</label
             >
             <input
               id="email"
@@ -30,7 +30,7 @@
             <label
               for="password"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Password</label
+              >{{ $t("Password") }}</label
             >
             <input
               id="password"
@@ -45,22 +45,22 @@
             <a
               href="#"
               class="text-primary-600 dark:text-primary-500 text-sm font-medium hover:underline"
-              >Forgot password?</a
+              >{{ $t("Forgot password") }}?</a
             >
           </div>
           <button
             type="submit"
             class="hover:bg-primary-700 focus:ring-primary-300 w-full rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
           >
-            Sign in
+            {{ $t("Sign in") }}
           </button>
-          <div class="w-full py-1">OR</div>
+          <div class="w-full py-1 uppercase">{{ $t("or") }}</div>
           <nuxt-link
             :to="useLocalePath()('register')"
             type="submit"
             class="hover:bg-primary-700 focus:ring-primary-300 block w-full rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
           >
-            Sign Up
+            {{ $t("Sign up") }}
           </nuxt-link>
         </form>
       </div>

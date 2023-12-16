@@ -41,14 +41,14 @@ const singUp = async () => {
         <h1
           class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl"
         >
-          Register your account
+          {{ $t("Register your account") }}
         </h1>
         <form class="space-y-4 md:space-y-6" @submit.prevent="singUp">
           <div>
             <label
               for="username"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Your name</label
+              >{{ $t("Your name") }}</label
             >
             <input
               id="username"
@@ -63,7 +63,7 @@ const singUp = async () => {
             <label
               for="email"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Your email</label
+              >{{ $t("Your email") }}</label
             >
             <input
               id="email"
@@ -78,7 +78,7 @@ const singUp = async () => {
             <label
               for="password"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Password</label
+              >{{ $t("Password") }}</label
             >
             <input
               id="password"
@@ -94,7 +94,7 @@ const singUp = async () => {
             class="hover:bg-primary-700 focus:ring-primary-300 w-full rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
             @click.prevent="singUp"
           >
-            Sign Up
+            {{ $t("Sign up") }}
           </button>
         </form>
       </div>
