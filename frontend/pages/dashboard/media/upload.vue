@@ -9,6 +9,7 @@ const imageInput = ref();
 const fileToUpload = ref();
 const isUpload = ref();
 const message = ref();
+const { t } = useI18n();
 
 const onCloseModal = () => {
   fileToUpload.value = null;
@@ -21,11 +22,9 @@ const handleFileChange = (event: any) => {
 };
 
 const uploadImage = async () => {
-  console.log("upload image start");
-
   if (!fileToUpload.value) {
     message.value = {
-      warning: "no image selected",
+      warning: t("no image selected"),
     };
     return;
   }
@@ -40,7 +39,6 @@ const uploadImage = async () => {
     }),
     body: formData,
   });
-  console.log(data, error);
 
   if (error.value) {
     isUpload.value = false;
@@ -50,7 +48,6 @@ const uploadImage = async () => {
   }
 
   if (data.value) {
-    console.log("success");
     isUpload.value = false;
     message.value = {
       success: data.value,
@@ -62,7 +59,11 @@ const uploadImage = async () => {
   <div class="container flex min-h-[60vh] items-center justify-center">
     <md-modal :show="!!message" @close="onCloseModal">
       <div class="p-2 shadow-md">
-        {{ message }}
+        <span v-if="message.success" class="mx-auto block w-fit"
+          ><span>{{ message.success.originalName }}</span> <br />
+          {{ $t("uploaded") }}!!</span
+        >
+        <span v-else class="mx-auto block w-fit">{{ message.warning }}</span>
       </div>
     </md-modal>
     <div class="p-4 shadow-lg">
@@ -78,7 +79,9 @@ const uploadImage = async () => {
           type="file"
           @change="handleFileChange"
         />
-        <button class="bg-primary p-1" type="submit">Upload Image</button>
+        <button class="bg-primary p-1" type="submit">
+          {{ $t("Upload image") }}
+        </button>
       </form>
     </div>
   </div>

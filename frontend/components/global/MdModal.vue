@@ -42,6 +42,12 @@
             :class="maxWidthClass"
           >
             <slot v-if="show" />
+            <button
+              class="w-full bg-primary py-3 text-center text-lg font-medium text-white"
+              @click="close"
+            >
+              {{ $t("close") }}
+            </button>
           </div>
         </transition>
       </div>

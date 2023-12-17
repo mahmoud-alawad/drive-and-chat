@@ -74,7 +74,7 @@ onMounted(async () => {
         'translate-x-0 rtl:translate-x-1/2': isMenuOpen,
         'ltr:-translate-x-full rtl:translate-x-[150%]': !isMenuOpen,
       }"
-      class="fixed left-0 top-0 z-50 h-screen w-64 transition-transform sm:ltr:translate-x-0 sm:rtl:translate-x-[150%] md:rtl:translate-x-0"
+      class="fixed left-0 top-0 z-40 h-screen w-64 transition-transform sm:ltr:translate-x-0 sm:rtl:translate-x-[150%] md:rtl:translate-x-0"
       aria-label="Sidebar"
     >
       <div class="h-full overflow-y-auto bg-gray-50 px-3 py-4">
