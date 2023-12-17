@@ -4,6 +4,7 @@ services:
   express:
     image: node:20
     container_name: express
+    tty: true  
     working_dir: "/usr/src/app"
     user: ${DOCKER_USER:-1000}:${DOCKER_USER:-1000}
     env_file:
