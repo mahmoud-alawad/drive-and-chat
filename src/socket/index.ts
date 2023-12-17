@@ -54,16 +54,20 @@ io.use(async (socket, next) => {
 
 const logOutUser = (socket: Socket) => {
   console.log("logoutuser");
-  const disconnectedUser = socketUsers.find(
-    (sockUser) => sockUser.userId === socket.data?.user?.id
-  );
-  if (disconnectedUser) {
-    socketUsers = socketUsers.filter(
-      (sockUser: any) => sockUser?.userId !== disconnectedUser.userId
+  try {
+    const disconnectedUser = socketUsers.find(
+      (sockUser) => sockUser.userId === socket.data?.user?.id
     );
-    setTimeout(() => {
-      io.emit("updateOnlineUsers", socketUsers);
-    }, 100);
+    if (disconnectedUser) {
+      socketUsers = socketUsers.filter(
+        (sockUser: any) => sockUser?.userId !== disconnectedUser.userId
+      );
+      setTimeout(() => {
+        io.emit("updateOnlineUsers", socketUsers);
+      }, 100);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 export { io, socketUsers, logOutUser };
