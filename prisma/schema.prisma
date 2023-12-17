@@ -39,17 +39,24 @@ model Image {
 }
 
 model Message {
-  id         String   @id @default(cuid())
-  text       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  receiverId String?
-  senderId   String
-  sender     User     @relation("user", fields: [senderId], references: [id])
-  reciver    User?    @relation("reciver", fields: [receiverId], references: [id])
+  id            String        @id @default(cuid())
+  text          String
+  messageStatus MessageStatus @default(SENT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  receiverId    String?
+  senderId      String
+  sender        User          @relation("user", fields: [senderId], references: [id])
+  reciver       User?         @relation("reciver", fields: [receiverId], references: [id])
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum MessageStatus {
+  SENT
+  READ
+  DELIVERED
 }

@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
+enum Role {
+  USER,
+  ADMIN,
+}
+
 const users = [
   {
     username: "Bret",
@@ -65,7 +70,7 @@ const users = [
   {
     username: "mahmoud alawad",
     email: "awad25.ma@gmail.com",
-    password: "password",
+    password: "abdalhakim",
   },
   {
     username: "free:300",
