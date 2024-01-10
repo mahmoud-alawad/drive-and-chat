@@ -1,20 +1,3 @@
-# Minyma Starter Template for Typescript+Express applications
-
-## Install
-
-### Get the template
-
-#### Using `degit`
-
-[`degit`](https://github.com/Rich-Harris/degit) is an npm package, that when given a repository name, downloads the contents of the repo but not the `.git` folder, hence you will get the code, but will start with a clean git history. [`tiged`](https://github.com/tiged/tiged) is a community maintained fork of degit with equivalent API, but better long term support.
-To download the template run:
-`npx tiged https://github.com/minyma-technologies/typescript-express-starter.git <target-folder>`
-
-#### Using Github template repository
-
-You can instantiate a GitHub repository with a starting template by navigating to [this](https://github.com/minyma-technologies/typescript-express-starter) repo and hitting "Use this template" in the top right corner.
-This will create a remote repository, which you can the clone locally.
-
 ### Run the project locally
 
 - `cd <target-folder>`
@@ -26,9 +9,8 @@ This will create a remote repository, which you can the clone locally.
 ### Run in a container using Docker Compose
 
 - `cd <target-folder>`
-- build the Docker image: `docker-compose build`
-- launch the containers: `docker-compose up`
-- `exec` into the server container: `docker exec -it typescript-express-prisma-starter_express_1 sh`
+- launch the containers: `docker compose up`
+- `exec` into the server container: `docker exec -it express sh`
 - run the prisma initalization: `npx prisma migrate dev --name init`
 
 ## Included:
