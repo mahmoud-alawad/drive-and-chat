@@ -1,6 +1,12 @@
+### Before start 
+##### shloud be familliar with these technolgies
+- Prisma ORM
+- Express ( Nodejs freamwork )
+- Zod
+- JS knowledge
+- TS knowledge
+- Nuxt 3 & vue 3 composition Api
 ### Run the project locally
-
-- `cd <target-folder>`
 - install dependencies: `npm install`
 - generate Prisma client: `npx prisma generate`
 - synch Prisma with db: `npx prisma migrate dev --name init`
